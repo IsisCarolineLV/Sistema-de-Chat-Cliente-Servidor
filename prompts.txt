@@ -1,0 +1,5 @@
+Só pra já deixar aqui salvo pra CASO a gente queira colocar no relatório
+
+1. Gemini, devo conseguir fazer mais de um cliente interagir num servidor. 
+Fiz meu projeto em java. Até o momento consigo conectar um cliente por vez no servidor rodando o código do cliente e do servidor em terminais separados, mas nas requisições do projeto devo fazer isso com threads e meu servidor deve poder servir para mais de um cliente simultâneo, como posso fazer essa adaptação? 
+
