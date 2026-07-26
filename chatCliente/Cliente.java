@@ -6,10 +6,9 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Cliente{
+public class Cliente {
     private static final int PORTA = 5000; //porta escolhida
-
-    public static void main (String[] args){
+    public static void main(String[] args){
         Socket socket =null;
         InputStreamReader inputLeitor = null;
         OutputStreamWriter outputEscritor = null;
@@ -55,5 +54,4 @@ public class Cliente{
             
         }
     }
-    
 }
