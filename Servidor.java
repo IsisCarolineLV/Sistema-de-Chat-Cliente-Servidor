@@ -1,26 +1,30 @@
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Servidor {
     private static final int PORTA = 5000; //porta escolhida
-    public static void main(String[] args) throws Exception {
-        System.out.println("O servidor de chat foi iniciado na porta " + PORTA + "...");
+    public static void main(String[] args){
 
-        try (ServerSocket serverSocket = new ServerSocket(PORTA)) {
-            //servidor ligado
+        //pra inicializar eles tem que ser dentro do try/catch por isso criamos a referencia nula
+        Socket socket =null;
+        ServerSocket serverSocket = null;
+        
+        try{
+            serverSocket = new ServerSocket(PORTA);
+
             while (true) {
-                // O método .accept() trava o código aqui até um cliente se conectar
-                Socket socketDoCliente = serverSocket.accept();
-                System.out.println("Um novo cliente se conectou ao servidor!");
-                
-                // TODO: Aqui vamos criar uma Thread (TratadorDeCliente) para cuidar desse cliente
-                // de forma independente, permitindo múltiplos clientes simultâneos.
+                // O servidor fica aguardando uma conexão
+                socket = serverSocket.accept();
+                System.out.println("Novo cliente conectado: " + socket.getInetAddress().getHostAddress());
+
+                // Cria uma nova Thread para atender o cliente
+                ThreadAtendente tratador = new ThreadAtendente(socket);
+                Thread threadDoCliente = new Thread(tratador);
+                threadDoCliente.start();
             }
-            
-        } catch (IOException e) {
-            System.out.println("Erro no servidor: " + e.getMessage());
+        }catch (Exception e){
             e.printStackTrace();
-        }
+        } 
+    
     }
 }
