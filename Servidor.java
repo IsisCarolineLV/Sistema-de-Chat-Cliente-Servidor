@@ -6,7 +6,7 @@ import java.util.concurrent.Semaphore;
 
 public class Servidor {
     private static final int PORTA = 5000; //porta escolhida
-    public static Map<Socket, String> socketCliente = new HashMap<>();  //tabela de roteamento
+    public static Map<String, Socket> socketCliente = new HashMap<>();  //tabela de roteamento
     private static Semaphore semaforoTabela = new Semaphore(1);
 
     public static void main(String[] args){

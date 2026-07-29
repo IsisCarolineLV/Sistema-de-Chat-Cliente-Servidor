@@ -7,6 +7,37 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Cliente {
+
+
+    private static class LeitorMensagensRecebidas extends Thread{
+        private BufferedReader bufferReader = null;
+        private boolean ativo = true;
+
+        public LeitorMensagensRecebidas (BufferedReader bf){
+            this.setDaemon(true);
+            bufferReader = bf;
+        }
+        public void run(){
+            while(ativo){
+                try{
+                    String msg = bufferReader.readLine();
+
+                    if(!msg.equals(null)){
+                        System.out.println(msg);
+                    }
+                    sleep(1000);    //pra nao ficar lendo toda hora e ocupando a cpu
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void desligar(){
+            ativo=false;
+        }
+    }
+
     public static void main(String[] args){
         Socket socket =null;
         InputStreamReader inputLeitor = null;
@@ -36,10 +67,13 @@ public class Cliente {
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
 
+            LeitorMensagensRecebidas leitorDeMensagem = new LeitorMensagensRecebidas(bufferReader);
+            leitorDeMensagem.start();
+
             bufferWriter.write(nome); //primeira mensagem eh o nome do cliente
             bufferWriter.newLine(); 
             bufferWriter.flush();
-            System.out.println("Servidor: "+ bufferReader.readLine()); 
+            //System.out.println(bufferReader.readLine()); 
 
             while(true){
                 String mensagem = scan.nextLine();
@@ -47,9 +81,10 @@ public class Cliente {
                 bufferWriter.newLine(); 
                 bufferWriter.flush();
 
-                System.out.println("Servidor: "+ bufferReader.readLine()); 
+                //System.out.println("Servidor: "+ bufferReader.readLine()); 
 
                 if(mensagem.equalsIgnoreCase("SAIR")){
+                    leitorDeMensagem.desligar();
                     break;
                 }
             }
