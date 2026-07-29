@@ -31,6 +31,11 @@ public class ThreadAtendente extends Thread{
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
 
+            //adiciona o cliente novo e o socket dele na tabela
+            semaforoTabela.acquire();
+            Servidor.socketCliente.put(socket, bufferReader.readLine());
+            semaforoTabela.release();
+
             while(true){
                 String mensagemDoCliente = bufferReader.readLine();
 
@@ -38,7 +43,7 @@ public class ThreadAtendente extends Thread{
                     break;
                 }
 
-                System.out.println("Cliente: "+ mensagemDoCliente);
+                System.out.println(Servidor.socketCliente.get(socket) +": "+ mensagemDoCliente);
 
                 bufferWriter.write("Mensagem recebida");
                 bufferWriter.newLine();

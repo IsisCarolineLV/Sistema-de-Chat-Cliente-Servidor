@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Cliente {
-    private static final int PORTA = 5000; //porta escolhida    PS: nao é mais util com a mudanca atual kkk
     public static void main(String[] args){
         Socket socket =null;
         InputStreamReader inputLeitor = null;
@@ -23,6 +22,9 @@ public class Cliente {
 
             System.out.println("Digite a porta do servidor: ");//mudei a porta pra ser configurada pelo usuario
             int portaServer = Integer.parseInt(scan.nextLine());
+
+            System.out.println("Digite seu apelido: "); //add pra o cliente anunciar de primeira seu nome pro servidor
+            String nome = scan.nextLine();
             
             socket = new Socket(ipServidor, portaServer); //mudado aq tbm
 
@@ -31,6 +33,10 @@ public class Cliente {
 
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
+
+            bufferWriter.write(nome); //primeira mensagem eh o nome do cliente
+            bufferWriter.newLine(); 
+            bufferWriter.flush();
 
             while(true){
                 String mensagem = scan.nextLine();

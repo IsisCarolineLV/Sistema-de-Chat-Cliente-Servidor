@@ -23,11 +23,6 @@ public class Servidor {
                 socket = serverSocket.accept();
                 System.out.println("Novo cliente conectado: " + socket.getInetAddress().getHostAddress());
 
-                //adiciona o cliente novo e o socket dele na tabela
-                semaforoTabela.acquire();
-                socketCliente.put(socket, "");
-                semaforoTabela.release();
-
                 // Cria uma nova Thread para atender o cliente
                 ThreadAtendente tratador = new ThreadAtendente(socket, semaforoTabela);
                 Thread threadDoCliente = new Thread(tratador);
