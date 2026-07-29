@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -19,18 +23,57 @@ public class Servidor {
             serverSocket = new ServerSocket(PORTA);
 
             while (true) {
-                // O servidor fica aguardando uma conexão
+                // O servidor fica aguardando uma conexao
                 socket = serverSocket.accept();
-                System.out.println("Novo cliente conectado: " + socket.getInetAddress().getHostAddress());
 
-                // Cria uma nova Thread para atender o cliente
-                ThreadAtendente tratador = new ThreadAtendente(socket, semaforoTabela);
-                Thread threadDoCliente = new Thread(tratador);
-                threadDoCliente.start();
+                //Se alguma conexao comecou ele segue executando isso:
+                System.out.println("Novo cliente tentou conectar: " + socket.getInetAddress().getHostAddress());
+
+                InputStreamReader inputLeitor = new InputStreamReader(socket.getInputStream());
+                BufferedReader bufferReader = new BufferedReader(inputLeitor);
+                String nomeDoCliente = bufferReader.readLine();   //le o nome
+                
+
+                //verifica se o nome eh valido
+                if(nomeUnico(nomeDoCliente)){
+                    // Cria uma nova Thread para atender o cliente
+                    ThreadAtendente tratador = new ThreadAtendente(socket, semaforoTabela, nomeDoCliente);
+                    Thread threadDoCliente = new Thread(tratador);
+                    threadDoCliente.start();
+
+                    semaforoTabela.acquire();
+                    socketCliente.put(nomeDoCliente, socket);
+                    semaforoTabela.release();
+
+                    System.out.println(nomeDoCliente+" foi conectado!");
+
+                }else{
+                    //Avisa pro Cliente que o nome nao foi aceito
+                    OutputStreamWriter outputEscritor = new OutputStreamWriter(socket.getOutputStream());
+                    BufferedWriter bufferWriter = new BufferedWriter(outputEscritor);
+
+                    bufferWriter.write("Já existe um usuário com esse nome");
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
         } 
     
+    }
+
+    //verifica se ha alguma ocorrencia desse nome na nossa atual tabela de roteamento
+    public static boolean  nomeUnico(String nome) throws InterruptedException{
+        boolean aceito = true;
+
+        semaforoTabela.acquire();
+        for(Map.Entry<String, Socket> c: Servidor.socketCliente.entrySet()){
+            if(c.getKey().equals(nome)) aceito=false;
+            //System.out.println(c.getKey()+ " x "+ nome);
+        }
+        semaforoTabela.release();
+
+        return aceito;
     }
 }

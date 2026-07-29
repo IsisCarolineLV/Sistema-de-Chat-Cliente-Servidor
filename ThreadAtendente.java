@@ -17,10 +17,11 @@ public class ThreadAtendente extends Thread{
     private BufferedReader bufferReader = null;
     private BufferedWriter bufferWriter = null;
 
-    public ThreadAtendente(Socket socket, Semaphore s){
+    public ThreadAtendente(Socket socket, Semaphore s, String nome){
         this.setDaemon(true);   //para finalizar o atendente junto com o servidor
         this.socket = socket;
         semaforoTabela = s;
+        nomeDoAtendido = nome;
     }
 
     public void run(){
@@ -32,23 +33,17 @@ public class ThreadAtendente extends Thread{
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
 
-            nomeDoAtendido = bufferReader.readLine();   //le o nome
-            //adiciona o cliente novo e o socket dele na tabela
-            semaforoTabela.acquire();
-            Servidor.socketCliente.put(nomeDoAtendido, socket);
-            semaforoTabela.release();
-
             bufferWriter.write(nomeDoAtendido + ", seja bem-vindo ao chat geral!");
             bufferWriter.newLine();
             bufferWriter.flush();
 
             while(true){
                 String mensagemDoCliente = bufferReader.readLine();
-                
 
                 if (mensagemDoCliente == null) {
                     break;
                 }
+
                 Mensagem mensagem = new Mensagem(mensagemDoCliente);
 
                 if(mensagemDoCliente.equalsIgnoreCase("SAIR")) {
@@ -59,8 +54,10 @@ public class ThreadAtendente extends Thread{
                 }
 
                 if(mensagem.getTipo()==1){
+                    //manda pra todo mundo no chat geral
                     broadcast(mensagem.getConteudo());
                 }else{
+                    //manda pra uma pessoa especifica
                     semaforoTabela.acquire();
                     System.out.println("DESTINO:"+mensagem.getDestino());
                     Socket socketDestino = Servidor.socketCliente.get(mensagem.getDestino());
@@ -76,6 +73,9 @@ public class ThreadAtendente extends Thread{
                         bufferWriterDestino.write(nomeDoAtendido +"(privada): "+ mensagem.getConteudo());
                         bufferWriterDestino.newLine();
                         bufferWriterDestino.flush();
+
+                        bufferWriterDestino.close();
+                        outputEscritorDestino.close();
                     }
                         
                 }
@@ -107,12 +107,15 @@ public class ThreadAtendente extends Thread{
 
         semaforoTabela.acquire();
         for(Map.Entry<String, Socket> c: Servidor.socketCliente.entrySet()){
-            OutputStreamWriter outputEscritor = new OutputStreamWriter(c.getValue().getOutputStream());
-            BufferedWriter bufferWriter =new BufferedWriter(outputEscritor);
+            OutputStreamWriter outputEscritorC = new OutputStreamWriter(c.getValue().getOutputStream());
+            BufferedWriter bufferWriterC =new BufferedWriter(outputEscritorC);
 
-            bufferWriter.write(nomeDoAtendido +": "+ mensagem);
-            bufferWriter.newLine();
-            bufferWriter.flush();
+            bufferWriterC.write(nomeDoAtendido +": "+ mensagem);
+            bufferWriterC.newLine();
+            bufferWriterC.flush();
+
+            bufferWriterC.close();
+            outputEscritorC.close();
 
         }
         semaforoTabela.release();

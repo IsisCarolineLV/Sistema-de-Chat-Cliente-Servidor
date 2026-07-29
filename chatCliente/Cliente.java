@@ -54,27 +54,46 @@ public class Cliente {
             System.out.println("Digite a porta do servidor: ");//mudei a porta pra ser configurada pelo usuario
             int portaServer = Integer.parseInt(scan.nextLine());*/
 
+            //TIRAR ISSO DEPOIS!!!!
             String ipServidor = "localhost"; int portaServer = 5000;    //so pra agilizar a vida nos testes aqui
 
-            System.out.println("Digite seu apelido: "); //add pra o cliente anunciar de primeira seu nome pro servidor
-            String nome = scan.nextLine();
-            
-            socket = new Socket(ipServidor, portaServer); //mudado aq tbm
+            boolean nomeAceito=false;
+            do{
+                socket = new Socket(ipServidor, portaServer); //mudado aq tbm
 
-            inputLeitor = new InputStreamReader(socket.getInputStream());
-            outputEscritor = new OutputStreamWriter(socket.getOutputStream());
+                inputLeitor = new InputStreamReader(socket.getInputStream());
+                outputEscritor = new OutputStreamWriter(socket.getOutputStream());
 
-            bufferReader = new BufferedReader(inputLeitor);
-            bufferWriter = new BufferedWriter(outputEscritor);
+                bufferReader = new BufferedReader(inputLeitor);
+                bufferWriter = new BufferedWriter(outputEscritor);
+
+                System.out.println("Digite seu apelido: "); //add pra o cliente anunciar de primeira seu nome pro servidor
+                String nome = scan.nextLine();
+
+                bufferWriter.write(nome); //primeira mensagem eh o nome do cliente
+                bufferWriter.newLine(); 
+                bufferWriter.flush();
+
+                if(bufferReader.readLine().equals("Já existe um usuário com esse nome")){
+                    System.out.println("Já existe um usuário com esse nome");
+                    bufferWriter.close();
+                    bufferReader.close();
+                    inputLeitor.close();
+                    outputEscritor.close();
+                    socket.close();
+                }else{
+                    nomeAceito=true;
+                }
+
+            }while(!nomeAceito);
 
             LeitorMensagensRecebidas leitorDeMensagem = new LeitorMensagensRecebidas(bufferReader);
             leitorDeMensagem.start();
 
-            bufferWriter.write(nome); //primeira mensagem eh o nome do cliente
-            bufferWriter.newLine(); 
-            bufferWriter.flush();
             //System.out.println(bufferReader.readLine()); 
             System.out.println("Para falar em privado com alguem digite \\nome");
+
+            
 
             while(true){
                 String mensagem = scan.nextLine();
@@ -93,6 +112,12 @@ public class Cliente {
 
                 if(mensagem.equalsIgnoreCase("SAIR")){
                     leitorDeMensagem.desligar();
+                    
+                    bufferWriter.close();
+                    bufferReader.close();
+                    inputLeitor.close();
+                    outputEscritor.close();
+                    socket.close();
                     break;
                 }
             }
