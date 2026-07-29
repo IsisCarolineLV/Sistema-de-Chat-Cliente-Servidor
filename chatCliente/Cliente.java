@@ -74,10 +74,18 @@ public class Cliente {
             bufferWriter.newLine(); 
             bufferWriter.flush();
             //System.out.println(bufferReader.readLine()); 
+            System.out.println("Para falar em privado com alguem digite \\nome");
 
             while(true){
                 String mensagem = scan.nextLine();
-                bufferWriter.write("CHAT GERAL|"+mensagem);
+
+                if(mensagem.charAt(0)=='\\'){
+                    System.out.print("Digite sua mensagem para "+mensagem.substring(1)+": ");
+                    String mensagemPrivada = scan.nextLine();
+                    bufferWriter.write("PRIVADA|"+mensagem.substring(1)+"|"+mensagemPrivada);
+                }else{
+                    bufferWriter.write("CHAT GERAL|"+mensagem);
+                }
                 bufferWriter.newLine(); 
                 bufferWriter.flush();
 

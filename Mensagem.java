@@ -3,12 +3,10 @@ public class Mensagem {
 
     private String conteudo;
     private String tipo;
-    private String remetente;
     private String destinatario = null;
 
-    public Mensagem (String mensagem, String clienteOrigem){
+    public Mensagem (String mensagem){
         String[] termos = mensagem.split("\\|");
-        remetente = clienteOrigem;
         if(termos.length==2){
             tipo = termos[0];
             conteudo = termos[1];
@@ -19,16 +17,6 @@ public class Mensagem {
         }
     }
 
-    public String getMensagemPraEncaminhar(){
-        if(destinatario.equals(null))
-            return tipo+"|"+conteudo;
-        return tipo+"|"+destinatario+"|"+conteudo;
-    }
-
-    public Mensagem prontaPraEncaminhar(){
-        return new Mensagem("MSG RECEBIDA|"+remetente+"|"+conteudo, destinatario);
-    }
-
     public String getConteudo(){
         return conteudo;
     }
@@ -36,6 +24,10 @@ public class Mensagem {
     public int getTipo(){
         if(tipo.equals("CHAT GERAL")) return 1;
         else return 2;
+    }
+
+    public String getDestino(){
+        return destinatario;
     }
     
 }

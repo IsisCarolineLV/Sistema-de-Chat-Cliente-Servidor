@@ -49,10 +49,35 @@ public class ThreadAtendente extends Thread{
                 if (mensagemDoCliente == null) {
                     break;
                 }
-                Mensagem mensagem = new Mensagem(mensagemDoCliente, nomeDoAtendido);
+                Mensagem mensagem = new Mensagem(mensagemDoCliente);
+
+                if(mensagemDoCliente.equalsIgnoreCase("SAIR")) {
+                    semaforoTabela.acquire();
+                    Servidor.socketCliente.remove(nomeDoAtendido);  //remove o cliente da tabela de roteamento
+                    semaforoTabela.release();
+                    break;
+                }
 
                 if(mensagem.getTipo()==1){
                     broadcast(mensagem.getConteudo());
+                }else{
+                    semaforoTabela.acquire();
+                    System.out.println("DESTINO:"+mensagem.getDestino());
+                    Socket socketDestino = Servidor.socketCliente.get(mensagem.getDestino());
+                    semaforoTabela.release();
+                    if(socketDestino== null){
+                        bufferWriter.write("Usuario não encontrado");
+                        bufferWriter.newLine();
+                        bufferWriter.flush();
+                    }else{
+                        OutputStreamWriter outputEscritorDestino = new OutputStreamWriter(socketDestino.getOutputStream());
+                        BufferedWriter bufferWriterDestino =new BufferedWriter(outputEscritorDestino);
+
+                        bufferWriterDestino.write(nomeDoAtendido +"(privada): "+ mensagem.getConteudo());
+                        bufferWriterDestino.newLine();
+                        bufferWriterDestino.flush();
+                    }
+                        
                 }
 
                 System.out.println(nomeDoAtendido +": "+ mensagem.getConteudo());
@@ -61,12 +86,7 @@ public class ThreadAtendente extends Thread{
                 bufferWriter.newLine();
                 bufferWriter.flush();
 
-                if(mensagemDoCliente.equalsIgnoreCase("SAIR")) {
-                    semaforoTabela.acquire();
-                    Servidor.socketCliente.remove(nomeDoAtendido);  //remove o cliente da tabela de roteamento
-                    semaforoTabela.release();
-                    break;
-                }
+                
             }
 
             socket.close();
