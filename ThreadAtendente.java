@@ -47,7 +47,7 @@ public class ThreadAtendente extends Thread{
             socket.close();
             inputLeitor.close();
             outputEscritor.close();
-            bufferReader.close();
+            bufferReader.close(); // nao seria bufferWriter.close?
             bufferReader.close();
 
         }catch(IOException e){
