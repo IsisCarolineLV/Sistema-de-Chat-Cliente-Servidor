@@ -10,6 +10,7 @@ public class ThreadAtendente extends Thread{
 
     private Socket socket;
     private Semaphore semaforoTabela;
+    private String nomeDoAtendido;
 
     public ThreadAtendente(Socket socket, Semaphore s){
         this.setDaemon(true);   //para finalizar o atendente junto com o servidor
@@ -31,10 +32,14 @@ public class ThreadAtendente extends Thread{
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
 
+            nomeDoAtendido = bufferReader.readLine();   //le o nome
             //adiciona o cliente novo e o socket dele na tabela
             semaforoTabela.acquire();
-            Servidor.socketCliente.put(socket, bufferReader.readLine());
+            Servidor.socketCliente.put(socket, nomeDoAtendido);
             semaforoTabela.release();
+            bufferWriter.write(nomeDoAtendido + ", seja bem-vindo ao chat geral!");
+            bufferWriter.newLine();
+            bufferWriter.flush();
 
             while(true){
                 String mensagemDoCliente = bufferReader.readLine();
@@ -42,8 +47,9 @@ public class ThreadAtendente extends Thread{
                 if (mensagemDoCliente == null) {
                     break;
                 }
+                String[] termos = mensagemDoCliente.split("\\|");
 
-                System.out.println(Servidor.socketCliente.get(socket) +": "+ mensagemDoCliente);
+                System.out.println(nomeDoAtendido +": "+ termos[1]);
 
                 bufferWriter.write("Mensagem recebida");
                 bufferWriter.newLine();

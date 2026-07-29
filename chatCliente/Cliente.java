@@ -17,11 +17,13 @@ public class Cliente {
 
         try{
 
-            System.out.println("Digite o IP do servidor: "); //mudei o ip pra ser configurado pelo usuario
+            /*System.out.println("Digite o IP do servidor: "); //mudei o ip pra ser configurado pelo usuario
             String ipServidor = scan.nextLine();
 
             System.out.println("Digite a porta do servidor: ");//mudei a porta pra ser configurada pelo usuario
-            int portaServer = Integer.parseInt(scan.nextLine());
+            int portaServer = Integer.parseInt(scan.nextLine());*/
+
+            String ipServidor = "localhost"; int portaServer = 5000;    //so pra agilizar a vida nos testes aqui
 
             System.out.println("Digite seu apelido: "); //add pra o cliente anunciar de primeira seu nome pro servidor
             String nome = scan.nextLine();
@@ -37,10 +39,11 @@ public class Cliente {
             bufferWriter.write(nome); //primeira mensagem eh o nome do cliente
             bufferWriter.newLine(); 
             bufferWriter.flush();
+            System.out.println("Servidor: "+ bufferReader.readLine()); 
 
             while(true){
                 String mensagem = scan.nextLine();
-                bufferWriter.write(mensagem);
+                bufferWriter.write("CHAT GERAL|"+mensagem);
                 bufferWriter.newLine(); 
                 bufferWriter.flush();
 
