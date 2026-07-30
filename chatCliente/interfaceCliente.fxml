@@ -14,7 +14,41 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <AnchorPane fx:id="paneMenu" prefHeight="810.0" prefWidth="810.0">
+      <AnchorPane fx:id="paneMenu1" prefHeight="810.0" prefWidth="810.0">
+         <children>
+            <ImageView fitHeight="810.0" fitWidth="810.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@imagens/telaConexao.png" />
+               </image>
+            </ImageView>
+            <Label layoutX="151.0" layoutY="224.0" prefHeight="49.0" prefWidth="351.0" text="Ex: 10.1.1.1" textFill="#88adb3">
+               <font>
+                  <Font name="Noto Sans Regular" size="31.0" />
+               </font>
+            </Label>
+            <TextField layoutX="133.0" layoutY="206.0" opacity="0.0" prefHeight="85.0" prefWidth="532.0">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </TextField>
+            <Button layoutX="248.0" layoutY="618.0" mnemonicParsing="false" opacity="0.0" prefHeight="64.0" prefWidth="312.0" text="Conectar">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Label layoutX="151.0" layoutY="391.0" prefHeight="49.0" prefWidth="351.0" text="Ex: 1234" textFill="#88adb3">
+               <font>
+                  <Font name="Noto Sans Regular" size="31.0" />
+               </font>
+            </Label>
+            <TextField layoutX="133.0" layoutY="373.0" opacity="0.0" prefHeight="85.0" prefWidth="423.0">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </TextField>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="paneMenu" prefHeight="810.0" prefWidth="810.0" visible="false">
          <children>
             <ImageView fitHeight="810.0" fitWidth="810.0" pickOnBounds="true" preserveRatio="true">
                <image>
