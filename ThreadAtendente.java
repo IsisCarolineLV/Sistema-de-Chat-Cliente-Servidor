@@ -44,14 +44,33 @@ public class ThreadAtendente extends Thread{
                     break;
                 }
 
-                Mensagem mensagem = new Mensagem(mensagemDoCliente);
-
                 if(mensagemDoCliente.equalsIgnoreCase("SAIR")) {
                     semaforoTabela.acquire();
                     Servidor.socketCliente.remove(nomeDoAtendido);  //remove o cliente da tabela de roteamento
                     semaforoTabela.release();
                     break;
                 }
+
+                if(mensagemDoCliente.equals("LISTAR_USUARIOS")){
+                    StringBuilder lista = new StringBuilder("Usuarios conectados: ");
+                    semaforoTabela.acquire();
+                    for(String nomeConectado : Servidor.socketCliente.keySet()){
+                        lista.append(nomeConectado).append(", ");//coloca os clientes conecotados na lista 
+                    }
+                    semaforoTabela.release();
+
+                    if(lista.length()>21){
+                        lista.setLength(lista.length() - 2);//tira a virgula 
+                    }
+                    bufferWriter.write(lista.toString());
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+
+                    continue;
+                }
+
+                Mensagem mensagem = new Mensagem(mensagemDoCliente);
+
 
                 if(mensagem.getTipo()==1){
                     //manda pra todo mundo no chat geral

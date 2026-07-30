@@ -48,14 +48,14 @@ public class Cliente {
 
         try{
 
-            System.out.println("Digite o IP do servidor: "); //mudei o ip pra ser configurado pelo usuario
-            String ipServidor = scan.nextLine();
+            //System.out.println("Digite o IP do servidor: "); //mudei o ip pra ser configurado pelo usuario
+            //String ipServidor = scan.nextLine();
 
-            System.out.println("Digite a porta do servidor: ");//mudei a porta pra ser configurada pelo usuario
-            int portaServer = Integer.parseInt(scan.nextLine());
+            //System.out.println("Digite a porta do servidor: ");//mudei a porta pra ser configurada pelo usuario
+           // int portaServer = Integer.parseInt(scan.nextLine());
 
             //TIRAR ISSO DEPOIS!!!!
-            //String ipServidor = "localhost"; int portaServer = 5000;    //so pra agilizar a vida nos testes aqui
+            String ipServidor = "localhost"; int portaServer = 5000;    //so pra agilizar a vida nos testes aqui        <<-- vamo deiar isso aq, pq agiliza dms 
 
             boolean nomeAceito=false;
             do{
@@ -91,14 +91,19 @@ public class Cliente {
             leitorDeMensagem.start();
 
             //System.out.println(bufferReader.readLine()); 
-            System.out.println("Para falar em privado com alguem digite \\nome");
+            System.out.println("Para falar em privado com alguem digite \\nome");//barra normal é melhor n?
+            System.out.println("Para listar os usuarios conectados digite /listar"); 
+            System.out.println("Para sair digite SAIR");
 
             
 
             while(true){
                 String mensagem = scan.nextLine();
 
-                if(mensagem.charAt(0)=='\\'){
+                if(mensagem.equalsIgnoreCase("/listar")){
+                    bufferWriter.write("LISTAR_USUARIOS");
+                }
+                else if(mensagem.charAt(0)=='\\'){
                     System.out.print("Digite sua mensagem para "+mensagem.substring(1)+": ");
                     String mensagemPrivada = scan.nextLine();
                     bufferWriter.write("PRIVADA|"+mensagem.substring(1)+"|"+mensagemPrivada);
