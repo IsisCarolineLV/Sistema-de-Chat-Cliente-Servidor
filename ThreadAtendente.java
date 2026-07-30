@@ -73,9 +73,6 @@ public class ThreadAtendente extends Thread{
                         bufferWriterDestino.write(nomeDoAtendido +"(privada): "+ mensagem.getConteudo());
                         bufferWriterDestino.newLine();
                         bufferWriterDestino.flush();
-
-                        bufferWriterDestino.close();
-                        outputEscritorDestino.close();
                     }
                         
                 }
@@ -99,6 +96,28 @@ public class ThreadAtendente extends Thread{
             e.printStackTrace();
         }catch (InterruptedException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                if (nomeDoAtendido != null) {
+                    semaforoTabela.acquire();
+                    Servidor.socketCliente.remove(nomeDoAtendido); // Remove o cliente que deu erro da tabela
+                    semaforoTabela.release();
+                    System.out.println(nomeDoAtendido + " foi desconectado");
+                }
+
+                // Fechando os recursos de forma segura
+                // (se o cliente saiu de forma correta nao vai fechar duas vezes)
+                if (socket != null && !socket.isClosed()) socket.close();
+                if (inputLeitor != null) inputLeitor.close();
+                if (outputEscritor != null) outputEscritor.close();
+                if (bufferWriter != null) bufferWriter.close();
+                if (bufferReader != null) bufferReader.close();
+
+                broadcast(nomeDoAtendido + " foi desconectado");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         
     }
@@ -113,9 +132,6 @@ public class ThreadAtendente extends Thread{
             bufferWriterC.write(nomeDoAtendido +": "+ mensagem);
             bufferWriterC.newLine();
             bufferWriterC.flush();
-
-            bufferWriterC.close();
-            outputEscritorC.close();
 
         }
         semaforoTabela.release();

@@ -48,14 +48,14 @@ public class Cliente {
 
         try{
 
-            /*System.out.println("Digite o IP do servidor: "); //mudei o ip pra ser configurado pelo usuario
+            System.out.println("Digite o IP do servidor: "); //mudei o ip pra ser configurado pelo usuario
             String ipServidor = scan.nextLine();
 
             System.out.println("Digite a porta do servidor: ");//mudei a porta pra ser configurada pelo usuario
-            int portaServer = Integer.parseInt(scan.nextLine());*/
+            int portaServer = Integer.parseInt(scan.nextLine());
 
             //TIRAR ISSO DEPOIS!!!!
-            String ipServidor = "localhost"; int portaServer = 5000;    //so pra agilizar a vida nos testes aqui
+            //String ipServidor = "localhost"; int portaServer = 5000;    //so pra agilizar a vida nos testes aqui
 
             boolean nomeAceito=false;
             do{
@@ -122,7 +122,7 @@ public class Cliente {
                 }
             }
         } catch (Exception e){
-            System.out.println("Deu ruim :(");
+            System.out.println("Deu ruim :( Socket morreu");
             e.printStackTrace();
         } finally {
             try{
