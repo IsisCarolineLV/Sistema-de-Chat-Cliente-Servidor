@@ -69,7 +69,7 @@ public class ThreadAtendente extends Thread{
                     continue;
                 }
 
-                Mensagem mensagem = new Mensagem(mensagemDoCliente);
+                Mensagem mensagem = new Mensagem(mensagemDoCliente, nomeDoAtendido);
 
 
                 if(mensagem.getTipo()==1){
@@ -78,7 +78,7 @@ public class ThreadAtendente extends Thread{
                 }else{
                     //manda pra uma pessoa especifica
                     semaforoTabela.acquire();
-                    System.out.println("DESTINO:"+mensagem.getDestino());
+                    //System.out.println("DESTINO:"+mensagem.getDestino());
                     Socket socketDestino = Servidor.socketCliente.get(mensagem.getDestino());
                     semaforoTabela.release();
                     if(socketDestino== null){

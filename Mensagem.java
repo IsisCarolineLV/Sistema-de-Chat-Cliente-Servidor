@@ -3,9 +3,10 @@ public class Mensagem {
 
     private String conteudo;
     private String tipo;
+    private String remetente;
     private String destinatario = null;
 
-    public Mensagem (String mensagem){
+    public Mensagem (String mensagem, String remetente){
         String[] termos = mensagem.split("\\|");
         if(termos.length==2){
             tipo = termos[0];
@@ -15,6 +16,8 @@ public class Mensagem {
             destinatario = termos[1];
             conteudo = termos[2];
         }
+
+        this.remetente = remetente;
     }
 
     public String getConteudo(){
@@ -28,6 +31,10 @@ public class Mensagem {
 
     public String getDestino(){
         return destinatario;
+    }
+
+    public String getRemetente(){
+        return remetente;
     }
     
 }
