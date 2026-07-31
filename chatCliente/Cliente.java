@@ -96,7 +96,6 @@ public class Cliente {
             System.out.println("Para sair digite SAIR");
 
             
-
             while(true){
                 String mensagem = scan.nextLine();
 

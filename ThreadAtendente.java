@@ -44,14 +44,14 @@ public class ThreadAtendente extends Thread{
                     break;
                 }
 
-                if(mensagemDoCliente.equalsIgnoreCase("SAIR")) {
+                if(mensagemDoCliente.equalsIgnoreCase("/SAIR")) {
                     semaforoTabela.acquire();
                     Servidor.socketCliente.remove(nomeDoAtendido);  //remove o cliente da tabela de roteamento
                     semaforoTabela.release();
                     break;
                 }
 
-                if(mensagemDoCliente.equals("LISTAR_USUARIOS")){
+                /*if(mensagemDoCliente.equals("LISTAR_USUARIOS")){
                     StringBuilder lista = new StringBuilder("Usuarios conectados: ");
                     semaforoTabela.acquire();
                     for(String nomeConectado : Servidor.socketCliente.keySet()){
@@ -67,12 +67,36 @@ public class ThreadAtendente extends Thread{
                     bufferWriter.flush();
 
                     continue;
-                }
+                }*/
 
-                Mensagem mensagem = new Mensagem(mensagemDoCliente, nomeDoAtendido);
+                Mensagem mensagem = new Mensagem(mensagemDoCliente);    //mudar estrutura
 
+                if(mensagem.getTipo().equals("LISTAR_USUARIOS")){
+                    StringBuilder lista = new StringBuilder("Usuarios conectados: ");
+                    semaforoTabela.acquire();
+                    for(String nomeConectado : Servidor.socketCliente.keySet()){
+                        lista.append(nomeConectado).append(", ");//coloca os clientes conecotados na lista 
+                    }
+                    semaforoTabela.release();
 
-                if(mensagem.getTipo()==1){
+                    if(lista.length()>21){
+                        lista.setLength(lista.length() - 2);//tira a virgula 
+                    }
+                    bufferWriter.write(lista.toString());
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+
+                    continue;
+                }else if(mensagem.getTipo().equals("AJUDA")){
+                    String listaComandos = "Servidor|1. /ajuda: exibe comandos\n"+ 
+                    "2. /listar: exibe uma lista de todos os usuarios online\n"+
+                    "3. @nomeUsuario: inicia um chat privado com o usuario\n"+
+                    "4. /sair: fecha a conexão com os servidor";
+                    bufferWriter.write(listaComandos);
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+                    continue;
+                }else  if(mensagem.getTipo().equals("CHAT GERAL")){
                     //manda pra todo mundo no chat geral
                     broadcast(mensagem.getConteudo());
                 }else{
@@ -81,7 +105,7 @@ public class ThreadAtendente extends Thread{
                     //System.out.println("DESTINO:"+mensagem.getDestino());
                     Socket socketDestino = Servidor.socketCliente.get(mensagem.getDestino());
                     semaforoTabela.release();
-                    if(socketDestino== null){
+                    if(socketDestino == null){
                         bufferWriter.write("Usuario não encontrado");
                         bufferWriter.newLine();
                         bufferWriter.flush();

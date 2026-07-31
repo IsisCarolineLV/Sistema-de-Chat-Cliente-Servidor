@@ -6,14 +6,30 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class InterfaceChatSwing {
 
-    public static ArrayList<String> botoesLaterais = new ArrayList<>();
-    public static java.util.List<JPanel> todosPaineisLaterais = new java.util.ArrayList<>();
+    private static ArrayList<String> botoesLaterais = new ArrayList<>();
+    private static java.util.List<JPanel> todosPaineisLaterais = new java.util.ArrayList<>();
     private static CardLayout cardLayout=null;
     private static JPanel painelGerenciador=null;
+    private static Socket socket;
+    private static InputStreamReader inputLeitor = null;
+    private static OutputStreamWriter outputEscritor = null;
+    private static BufferedReader bufferReader = null;
+    private static BufferedWriter bufferWriter = null;
+    private static String ipServidor;
+    private static int portaServer;
+    private static String meuNome;
+    //Scanner scan = new Scanner(System.in); //scan jogado pra junto das variaveis
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> criarTela());
@@ -117,21 +133,69 @@ public class InterfaceChatSwing {
         //Mudanca de tela:
         // Conexao -> Nome
         btnConectar.addActionListener(e -> {
-            String ip = txtIp.getText();
+            ipServidor = txtIp.getText();
             String porta = txtPorta.getText();
+            //Socket socketNovo = null;
             
             // Aqui você futuramente adiciona a lógica do "new Socket(ip, porta)"
-            if (!ip.trim().isEmpty() && !porta.trim().isEmpty()) {
-                cardLayout.show(painelGerenciador, "TELA_MENU");
+            if (!ipServidor.trim().isEmpty() && !porta.trim().isEmpty()) {
+                socket =null;
+                //try {
+                    portaServer = Integer.parseInt(porta);
+                    //socket = new Socket(ipServidor,portaServer );
+                    cardLayout.show(painelGerenciador, "TELA_MENU");
+                //} catch (IOException e1) {
+                    //e1.printStackTrace();
+                //}
             }
+
         });
 
         // Nome -> Chat Geral
         btnEntrar.addActionListener(e -> {
             String nome = txtNome.getText();
-            if (!nome.trim().isEmpty()) {
-                // Aqui você enviará o nome do usuário para o servidor via Socket
-                cardLayout.show(painelGerenciador, "TELA_CHAT");
+            if (nome.trim().isEmpty()) {    //se tentar enviar com o campo em branco
+                txtNome.setText(""); 
+                lblPlaceholderNome.setForeground(Color.RED);
+                lblPlaceholderNome.setText("Nome obrigatório!"); 
+                lblPlaceholderNome.setVisible(true);
+                janela.requestFocusInWindow(); 
+            }else {
+                try {
+                    socket = new Socket(ipServidor, portaServer); //mudado aq tbm
+
+                    inputLeitor = new InputStreamReader(socket.getInputStream());
+                    outputEscritor = new OutputStreamWriter(socket.getOutputStream());
+
+                    bufferReader = new BufferedReader(inputLeitor);
+                    bufferWriter = new BufferedWriter(outputEscritor);
+
+                    bufferWriter.write(nome); //primeira mensagem eh o nome do cliente
+                    bufferWriter.newLine(); 
+                    bufferWriter.flush();
+
+                    if(bufferReader.readLine().equals("Já existe um usuário com esse nome")){
+                        
+                        lblPlaceholderNome.setText("Nome indisponível!");
+                        //txtNome.setVisible(false);
+                        txtNome.setText("");
+                        lblPlaceholderNome.setForeground(Color.RED);
+                        lblPlaceholderNome.setVisible(true);
+                        janela.requestFocusInWindow(); 
+                        bufferWriter.close();
+                        bufferReader.close();
+                        inputLeitor.close();
+                        outputEscritor.close();
+                        socket.close();
+                    }else{
+                        meuNome = nome;
+                        cardLayout.show(painelGerenciador, "TELA_CHAT");
+                        LeitorMensagensRecebidas leitorDeMensagem = new LeitorMensagensRecebidas(bufferReader);
+                        leitorDeMensagem.start();
+                    }
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
 
@@ -158,7 +222,11 @@ public class InterfaceChatSwing {
         campo.setCaretColor(Color.BLACK); 
         
         campo.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) { placeholder.setVisible(false); }
+            public void focusGained(FocusEvent e) { 
+                placeholder.setVisible(false); 
+                placeholder.setForeground(Color.decode("#88adb3"));
+                placeholder.setText("Digite seu nome aqui...");
+            }
             public void focusLost(FocusEvent e) { if(campo.getText().isEmpty()) placeholder.setVisible(true); }
         });
     }
@@ -176,7 +244,7 @@ public class InterfaceChatSwing {
         // O BorderLayout.NORTH é o que força as mensagens a ficarem espremidas em cima!
         wrapperMensagens.add(painelMensagens, BorderLayout.NORTH);
 
-        MensagemPanel novoBalao = new MensagemPanel("Isis", "Oii! Essa é uma mensagem de teste");
+        /*MensagemPanel novoBalao = new MensagemPanel("Isis", "Oii! Essa é uma mensagem de teste");
         MensagemPanel novoBalao2 = new MensagemPanel("Oii! Essa é uma mensagem de teste minha :P");
         MensagemPanel novoBalao3 = new MensagemPanel("Isis", "Oii! Essa é uma mensagem de teste");
 
@@ -188,7 +256,7 @@ public class InterfaceChatSwing {
         // Adiciona o balão no painel que está dentro do JScrollPane
         painelMensagens.add(novoBalao);
         painelMensagens.add(novoBalao2);
-        painelMensagens.add(novoBalao3);
+        painelMensagens.add(novoBalao3);*/
 
         // Scroll para as mensagens da conversa
         JScrollPane scrollChat = new JScrollPane(wrapperMensagens);
@@ -236,7 +304,7 @@ public class InterfaceChatSwing {
         btnChatLateral.addActionListener(e ->{
             cardLayout.show(painelGerenciador, "TELA_CHAT");
         });
-
+        //Demais botoes pros chats privados
         JPanel painelLateral = new JPanel();
         painelLateral.setOpaque(false);
         painelLateral.setLayout(new BoxLayout(painelLateral, BoxLayout.Y_AXIS));
@@ -275,6 +343,41 @@ public class InterfaceChatSwing {
         scrollLateral.setBorder(null);
         scrollLateral.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
         scrollLateral.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
+
+
+        //Enviar mensagem
+        btnEnviar.addActionListener(e -> {
+            String mensagem = txtMensagem.getText();
+            if (!mensagem.trim().isEmpty()){
+                MensagemPanel novaMsg = new MensagemPanel(mensagem);
+                painelMensagens.add(novaMsg);
+                txtMensagem.setText("");
+                try {
+
+                    if(titulo.equals("Chat Geral")){
+                        if(mensagem.equalsIgnoreCase("/listar")){
+                            bufferWriter.write("LISTAR_USUARIOS");
+                        }else if(mensagem.equalsIgnoreCase("/ajuda")){
+                            bufferWriter.write("AJUDA");
+                        }else if(mensagem.charAt(0)=='@'){
+                            bufferWriter.write(meuNome+"|"+mensagem.substring(1));
+                            //faz isso quando receber a confirmacao da existencia do usuario
+                            //PainelComFundo telaNova = criarTelaChat(caminho, mensagem.substring(1));
+                            //painelGerenciador.add(telaNova, mensagem.substring(1));
+                            //bufferWriter.write("PRIVADA|"+mensagem.substring(1)+"|"+mensagemPrivada);
+                        }else{
+                            bufferWriter.write("CHAT GERAL|"+mensagem);
+                        }
+                    }else{
+                        bufferWriter.write("PRIVADA|"+titulo+"|"+mensagem);
+                    }
+                    bufferWriter.newLine(); 
+                    bufferWriter.flush();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
         
         telaChat.add(scrollChat);
         telaChat.add(txtMensagem);
@@ -316,6 +419,36 @@ public class InterfaceChatSwing {
         }
         botoesLaterais.add(tituloChat);
         btnNovo.setBackground(Color.decode("#b2bdff"));
+    }
+
+    //Thread pra ficar recebendo as mensagens
+    private static class LeitorMensagensRecebidas extends Thread{
+        private BufferedReader bufferReader = null;
+        private boolean ativo = true;
+
+        public LeitorMensagensRecebidas (BufferedReader bf){
+            this.setDaemon(true);
+            bufferReader = bf;
+        }
+        public void run(){
+            while(ativo){
+                try{
+                    String msg = bufferReader.readLine();
+
+                    if(!msg.equals(null)){
+                        System.out.println(msg);
+                    }
+                    sleep(1000);    //pra nao ficar lendo toda hora e ocupando a cpu
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void desligar(){
+            ativo=false;
+        }
     }
 }
 

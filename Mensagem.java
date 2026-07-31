@@ -6,27 +6,33 @@ public class Mensagem {
     private String remetente;
     private String destinatario = null;
 
-    public Mensagem (String mensagem, String remetente){
+    public Mensagem (String mensagem){
         String[] termos = mensagem.split("\\|");
-        if(termos.length==2){
-            tipo = termos[0];
-            conteudo = termos[1];
+        if(termos.length==1){
+            tipo = mensagem;
+            System.out.println("COMANDO DE UMA LINHA:"+mensagem);
+        }else if(termos.length==2){
+            tipo = "CONVERSA PRIVADA";
+            remetente = termos[0];
+            destinatario = termos[1];
         }else if (termos.length==3){
             tipo = termos[0];
-            destinatario = termos[1];
+            remetente = termos[1];
             conteudo = termos[2];
+        }else if (termos.length==4){
+            tipo = termos[0];
+            remetente = termos[1];
+            destinatario = termos[2];
+            conteudo = termos[3];
         }
-
-        this.remetente = remetente;
     }
 
     public String getConteudo(){
         return conteudo;
     }
 
-    public int getTipo(){
-        if(tipo.equals("CHAT GERAL")) return 1;
-        else return 2;
+    public String getTipo(){
+        return tipo;
     }
 
     public String getDestino(){
