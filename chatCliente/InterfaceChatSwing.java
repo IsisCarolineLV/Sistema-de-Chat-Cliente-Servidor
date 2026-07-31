@@ -33,6 +33,7 @@ public class InterfaceChatSwing {
     private static String ipServidor;
     private static int portaServer;
     private static String meuNome;
+
     //Scanner scan = new Scanner(System.in); //scan jogado pra junto das variaveis
 
 
@@ -231,6 +232,11 @@ public class InterfaceChatSwing {
                     e1.printStackTrace();
                 }
             }
+        });
+        btnAleatorio.addActionListener(e ->{
+            String nome = gerarNickAleatorio();
+            txtNome.setText(nome);
+            lblPlaceholderNome.setVisible(false);
         });
 
         // Configuração final
@@ -459,6 +465,47 @@ public class InterfaceChatSwing {
         }
         botoesLaterais.add(tituloChat);
         btnNovo.setBackground(Color.decode("#b2bdff"));
+    }
+
+    private static String gerarNickAleatorio() {
+        // Encontros vocálicos e vogais simples
+        String[] vogais = {"a", "e", "i", "o", "u", "ia", "ou", "io", "ei", "au"};
+        
+        // Consoantes simples e encontros consonantais muito comuns em PT/EN
+        String[] consoantes = {
+            "b", "c", "d", "f", "g", "j", "k", "l", "m", "n", "p", "r", "s", "t", "v", "z", 
+            "br", "cr", "dr", "fr", "gr", "pr", "tr", "vr", 
+            "bl", "cl", "fl", "gl", "pl", 
+            "ch", "nh", "lh", "sh", "st", "th"
+        };
+        
+        java.util.Random random = new java.util.Random();
+        
+        // Define que o nome terá entre 3 e 5 "partes" (ex: C-V-C-V)
+        int numPartes = random.nextInt(3) + 3; 
+        StringBuilder nick = new StringBuilder();
+        
+        // Sorteia se o nome vai começar com vogal (true) ou consoante (false)
+        boolean usarVogal = random.nextBoolean();
+        
+        for (int i = 0; i < numPartes; i++) {
+            if (usarVogal) {
+                nick.append(vogais[random.nextInt(vogais.length)]);
+            } else {
+                nick.append(consoantes[random.nextInt(consoantes.length)]);
+            }
+            // Alterna para o próximo pedaço! Se foi vogal, agora é consoante, e vice-versa.
+            usarVogal = !usarVogal; 
+        }
+        
+        // (Opcional) Adiciona um número aleatório no final (ex: 99) para dar uma vibe "gamer"
+        if (random.nextBoolean()) {
+            nick.append(random.nextInt(100));
+        }
+        
+        // Coloca a primeira letra em maiúsculo para ficar bonito na tela
+        String resultado = nick.toString();
+        return resultado.substring(0, 1).toUpperCase() + resultado.substring(1);
     }
 
     //Thread pra ficar recebendo as mensagens
