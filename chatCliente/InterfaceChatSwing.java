@@ -1,52 +1,62 @@
-//fiz a interface no scene builder, mas como Javafx eh uma bomba nos pcs com java 22
-//a geminina sugeriu fazer em swing, entao eu pedi pra ela adaptar o arquivo fxml que eu fiz
+//fiz a interiniciando a interfaceface no scene builder, mas como Javafx eh uma bomba nos pcs com java 22
+//a gemini sugeriu fazer em swing, entao eu pedi pra ela adaptar o arquivo fxml que eu fiz
 //para swing, assim roda, teoricamente em qualquer pc independente da versao do java
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.ArrayList;
 
 public class InterfaceChatSwing {
+
+    public static ArrayList<String> botoesLaterais = new ArrayList<>();
+    public static java.util.List<JPanel> todosPaineisLaterais = new java.util.ArrayList<>();
+    private static CardLayout cardLayout=null;
+    private static JPanel painelGerenciador=null;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> criarTela());
     }
 
     private static void criarTela() {
-        // Configuração da janela principal com base nas dimensões do AnchorPane (810x810)
+        // Configuração da janela principal 
         JFrame janela = new JFrame("Sistema de Chat");
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        
         
         janela.getContentPane().setPreferredSize(new Dimension(810, 810));
         janela.pack(); 
         janela.setResizable(false); // Trava o redimensionamento
 
-        CardLayout cardLayout = new CardLayout();
-        JPanel painelGerenciador = new JPanel(cardLayout);
+        //CardLayout que trata cada pane nele como uma carta, ajudando a trocar o pane visivel facilmente
+        cardLayout = new CardLayout();
+        painelGerenciador = new JPanel(cardLayout);
 
-        // ==========================================
-        // TELA 1: CONEXÃO (paneMenu1)
-        // ==========================================
+        /////////////////////////////////////////////////////
+        // TELA DE CONEXAO
         PainelComFundo telaConexao = new PainelComFundo("chatCliente/imagens/telaConexao.png");
-        telaConexao.setLayout(null);
+        telaConexao.setLayout(null); 
 
-        // Placeholder e Campo do IP
-        JLabel lblPlaceholderIp = new JLabel("Ex: 10.1.1.1");
+        // Texto exemplo IP
+        JLabel lblPlaceholderIp = new JLabel("Ex: 10.0.0.0");
         lblPlaceholderIp.setBounds(151, 224, 351, 49);
         lblPlaceholderIp.setForeground(Color.decode("#88adb3"));
         lblPlaceholderIp.setFont(new Font("SansSerif", Font.PLAIN, 31));
-
+        
+        //Campo para Digitar o IP
         JTextField txtIp = new JTextField();
         txtIp.setBounds(151, 206, 532, 85);
         configurarCampoInvisivel(txtIp, lblPlaceholderIp);
 
-        // Placeholder e Campo da Porta
+        // Texto exemplo porta
         JLabel lblPlaceholderPorta = new JLabel("Ex: 1234");
         lblPlaceholderPorta.setBounds(151, 391, 351, 49);
         lblPlaceholderPorta.setForeground(Color.decode("#88adb3"));
         lblPlaceholderPorta.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
+        //Campo para Digitar a porta
         JTextField txtPorta = new JTextField();
         txtPorta.setBounds(151, 373, 423, 85);
         configurarCampoInvisivel(txtPorta, lblPlaceholderPorta);
@@ -62,25 +72,28 @@ public class InterfaceChatSwing {
         telaConexao.add(lblPlaceholderPorta);
         telaConexao.add(btnConectar);
 
-        // ==========================================
-        // TELA 2: MENU PRINCIPAL (paneMenu)
-        // ==========================================
+        /////////////////////////////////////////////////////
+        // TELA DE DEFINICAO DO NOME
         PainelComFundo telaMenu = new PainelComFundo("chatCliente/imagens/Menu.png");
         telaMenu.setLayout(null); 
 
+        //Placeholder indicando onde digitar
         JLabel lblPlaceholderNome = new JLabel("Digite seu nome aqui...");
         lblPlaceholderNome.setBounds(225, 562, 351, 49);
         lblPlaceholderNome.setForeground(Color.decode("#88adb3"));
         lblPlaceholderNome.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
+        //Campo para Digitar o nome
         JTextField txtNome = new JTextField();
-        txtNome.setBounds(156, 543, 481, 85);
+        txtNome.setBounds(225, 543, 481, 85);
         configurarCampoInvisivel(txtNome, lblPlaceholderNome);
 
+        //Botao nomeAleatorio
         JButton btnAleatorio = new JButton();
         btnAleatorio.setBounds(179, 521, 45, 43);
         configurarBotaoInvisivel(btnAleatorio);
 
+        //Botao entrar
         JButton btnEntrar = new JButton();
         btnEntrar.setBounds(246, 653, 312, 64);
         configurarBotaoInvisivel(btnEntrar);
@@ -90,70 +103,23 @@ public class InterfaceChatSwing {
         telaMenu.add(btnAleatorio);
         telaMenu.add(btnEntrar);
 
-        // ==========================================
-        // TELA 3: CHAT (paneChat)
-        // ==========================================
-        PainelComFundo telaChat = new PainelComFundo("chatCliente/imagens/TelaChat.png");
-        telaChat.setLayout(null);
+        /////////////////////////////////////////////////////
+        // TELA DO CHAT
+        PainelComFundo telaChat = criarTelaChat("chatCliente/imagens/TelaChat.png", "Chat Geral");
+        PainelComFundo telaIsis = criarTelaChat("chatCliente/imagens/TelaChat.png", "Isis");
+        PainelComFundo telaOlavo = criarTelaChat("chatCliente/imagens/TelaChat.png", "Olavo");
 
-        JTextArea areaMensagens = new JTextArea();
-        areaMensagens.setEditable(false);
-        areaMensagens.setOpaque(false);
-        areaMensagens.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        areaMensagens.setForeground(Color.WHITE);
-        areaMensagens.setLineWrap(true);
+        //Adiciona as telas no gerenciador:
 
-        JScrollPane scrollChat = new JScrollPane(areaMensagens);
-        scrollChat.setBounds(186, 28, 612, 680);
-        scrollChat.setOpaque(false);
-        scrollChat.getViewport().setOpaque(false); 
-        scrollChat.setBorder(null);
-        
-        JLabel lblPlaceholderMsg = new JLabel("Digite aqui...");
-        lblPlaceholderMsg.setBounds(219, 735, 471, 49);
-        lblPlaceholderMsg.setForeground(Color.decode("#88adb3"));
-        lblPlaceholderMsg.setFont(new Font("SansSerif", Font.PLAIN, 31));
-
-        JTextField txtMensagem = new JTextField();
-        txtMensagem.setBounds(219, 735, 471, 49);
-        configurarCampoInvisivel(txtMensagem, lblPlaceholderMsg);
-        txtMensagem.setFont(new Font("SansSerif", Font.PLAIN, 31)); // Reduzindo um pouco a fonte da msg
-
-        JButton btnEnviar = new JButton();
-        btnEnviar.setBounds(704, 729, 65, 56);
-        configurarBotaoInvisivel(btnEnviar);
-
-        JLabel lblTituloChat = new JLabel("Chat Geral", SwingConstants.CENTER);
-        lblTituloChat.setBounds(384, 14, 157, 45);
-        lblTituloChat.setFont(new Font("SansSerif", Font.PLAIN, 31));
-        lblTituloChat.setForeground(Color.WHITE);
-
-        JButton btnChatLateral = new JButton("Chat Geral");
-        btnChatLateral.setBounds(14, 48, 141, 45); 
-        btnChatLateral.setBackground(Color.decode("#b2bdff"));
-        btnChatLateral.setFont(new Font("SansSerif", Font.PLAIN, 20));
-        btnChatLateral.setFocusPainted(false);
-
-        telaChat.add(scrollChat);
-        telaChat.add(txtMensagem);
-        telaChat.add(lblPlaceholderMsg);
-        telaChat.add(btnEnviar);
-        telaChat.add(lblTituloChat);
-        telaChat.add(btnChatLateral);
-
-        // ==========================================
-        // ADICIONA AS TELAS NO GERENCIADOR
-        // ==========================================
-        // A primeira tela adicionada é a que aparece por padrão
+        //A primeira tela adicionada é a que aparece por padrão
         painelGerenciador.add(telaConexao, "TELA_CONEXAO");
         painelGerenciador.add(telaMenu, "TELA_MENU");
         painelGerenciador.add(telaChat, "TELA_CHAT");
+        painelGerenciador.add(telaIsis, "Isis");
+        painelGerenciador.add(telaOlavo, "Olavo");
 
-        // ==========================================
-        // AÇÕES DE MUDANÇA DE TELA
-        // ==========================================
-        
-        // Ação da Tela 1 -> Tela 2
+        //Mudanca de tela:
+        // Conexao -> Nome
         btnConectar.addActionListener(e -> {
             String ip = txtIp.getText();
             String porta = txtPorta.getText();
@@ -164,7 +130,7 @@ public class InterfaceChatSwing {
             }
         });
 
-        // Ação da Tela 2 -> Tela 3
+        // Nome -> Chat Geral
         btnEntrar.addActionListener(e -> {
             String nome = txtNome.getText();
             if (!nome.trim().isEmpty()) {
@@ -173,13 +139,15 @@ public class InterfaceChatSwing {
             }
         });
 
+        
+
         // Configuração final
         janela.add(painelGerenciador);
         janela.setLocationRelativeTo(null);
         janela.setVisible(true);
     }
 
-    // Método auxiliar para criar os "botões falsos" com opacity=0
+    // Torna o botao "invisivel"
     private static void configurarBotaoInvisivel(JButton botao) {
         botao.setOpaque(false);
         botao.setContentAreaFilled(false);
@@ -187,18 +155,156 @@ public class InterfaceChatSwing {
         botao.setCursor(new Cursor(Cursor.HAND_CURSOR)); 
     }
     
-    // Método auxiliar para configurar campos transparentes com comportamento de Placeholder
+    // Quando se escreve algo no campo o placeholder fica invisivel
     private static void configurarCampoInvisivel(JTextField campo, JLabel placeholder) {
         campo.setOpaque(false); 
         campo.setBorder(null);  
         campo.setFont(new Font("SansSerif", Font.PLAIN, 31));
         campo.setForeground(Color.WHITE); 
-        campo.setCaretColor(Color.WHITE); 
+        campo.setCaretColor(Color.BLACK); 
         
         campo.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) { placeholder.setVisible(false); }
             public void focusLost(FocusEvent e) { if(campo.getText().isEmpty()) placeholder.setVisible(true); }
         });
+    }
+
+    //Cria Tela de Chat
+    private static PainelComFundo criarTelaChat(String caminho, String titulo){
+        PainelComFundo telaChat = new PainelComFundo(caminho);
+        telaChat.setLayout(null);
+
+        //acho que isso vai sair...
+        JTextArea areaMensagens = new JTextArea();
+        areaMensagens.setEditable(false);
+        areaMensagens.setOpaque(false);
+        areaMensagens.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        areaMensagens.setForeground(Color.WHITE);
+        areaMensagens.setLineWrap(true);
+
+        //Scroll para as mensagens da conversa
+        JScrollPane scrollChat = new JScrollPane(areaMensagens);
+        scrollChat.setBounds(186, 28, 612, 680);
+        scrollChat.setOpaque(false);
+        scrollChat.getViewport().setOpaque(false); 
+        scrollChat.setBorder(null);
+        
+        //Place holder indicando onde digitar a mensagem
+        JLabel lblPlaceholderMsg = new JLabel("Digite aqui...");
+        lblPlaceholderMsg.setBounds(219, 735, 471, 49);
+        lblPlaceholderMsg.setForeground(Color.decode("#88adb3"));
+        lblPlaceholderMsg.setFont(new Font("SansSerif", Font.PLAIN, 31));
+
+        //Campo para digitar uma mensagem
+        JTextField txtMensagem = new JTextField();
+        txtMensagem.setBounds(219, 735, 471, 49);
+        configurarCampoInvisivel(txtMensagem, lblPlaceholderMsg);
+        txtMensagem.setFont(new Font("SansSerif", Font.PLAIN, 31)); // Reduzindo um pouco a fonte da msg
+
+        //Botao enviar
+        JButton btnEnviar = new JButton();
+        btnEnviar.setBounds(704, 729, 65, 56);
+        configurarBotaoInvisivel(btnEnviar);
+
+        //Titulo do chat
+        JLabel lblTituloChat = new JLabel(titulo, SwingConstants.CENTER);
+        lblTituloChat.setBounds(334, 24, 257, 31);
+        lblTituloChat.setFont(new Font("SansSerif", Font.PLAIN, 31));
+        lblTituloChat.setForeground(Color.BLACK);
+
+        //Botao do Chat Geral
+        JButton btnChatLateral = new JButton("Chat Geral");
+        btnChatLateral.setBounds(14, 48, 141, 45); 
+        btnChatLateral.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        btnChatLateral.setFocusPainted(false);
+        if(titulo.equals("Chat Geral")){
+            btnChatLateral.setBackground(Color.decode("#b2bdff"));
+        } else{
+            btnChatLateral.setBackground(Color.decode("#458c98"));
+        }
+        btnChatLateral.addActionListener(e ->{
+            cardLayout.show(painelGerenciador, "TELA_CHAT");
+        });
+
+        JPanel painelLateral = new JPanel();
+        painelLateral.setOpaque(false);
+        painelLateral.setLayout(new BoxLayout(painelLateral, BoxLayout.Y_AXIS));
+
+        for(String nomeAntigo : botoesLaterais){
+            JButton btnAntigo = new JButton(nomeAntigo);
+            btnAntigo.setPreferredSize(new Dimension(141, 45));
+            btnAntigo.setMaximumSize(new Dimension(141, 45)); 
+            btnAntigo.setBackground(Color.decode("#458c98"));
+            btnAntigo.setOpaque(true);
+            btnAntigo.setFocusPainted(false);
+            btnAntigo.setFont(new Font("SansSerif", Font.PLAIN, 20));
+            btnAntigo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            
+            btnAntigo.addActionListener(e -> {
+                cardLayout.show(painelGerenciador, nomeAntigo);
+            });
+
+            painelLateral.add(btnAntigo);
+            painelLateral.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+        
+        todosPaineisLaterais.add(painelLateral);
+
+        //adicionando botao da tela privada
+        if(!titulo.equals("Chat Geral")){
+            adicionarNovoChatNaLateral(titulo);
+        }
+
+        
+
+        //Scroll Lateral
+        
+        JScrollPane scrollLateral = new JScrollPane(painelLateral);
+        scrollLateral.setBounds(14, 200, 160, 600);
+        scrollLateral.setOpaque(false);
+        scrollLateral.getViewport().setOpaque(false); 
+        scrollLateral.setBorder(null);
+        
+        telaChat.add(scrollChat);
+        telaChat.add(txtMensagem);
+        telaChat.add(lblPlaceholderMsg);
+        telaChat.add(btnEnviar);
+        telaChat.add(lblTituloChat);
+        telaChat.add(btnChatLateral);
+        telaChat.add(scrollLateral);
+
+        return telaChat;
+    }
+
+    // Novo método para adicionar botões de chat privado
+    public static void adicionarNovoChatNaLateral(String tituloChat) {
+        // Para cada painel lateral existente no nosso jogo, criamos um botão novo!
+        JButton btnNovo = null;
+        for (JPanel painel : todosPaineisLaterais) {
+            btnNovo = new JButton(tituloChat);
+            btnNovo.setPreferredSize(new Dimension(141, 45));
+            btnNovo.setMaximumSize(new Dimension(141, 45)); 
+            
+            btnNovo.setBackground(Color.decode("#458c98"));
+            btnNovo.setOpaque(true);
+            btnNovo.setFocusPainted(false);
+            btnNovo.setFont(new Font("SansSerif", Font.PLAIN, 20));
+            btnNovo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            
+            btnNovo.addActionListener(e -> {
+                cardLayout.show(painelGerenciador, tituloChat);
+            });
+            
+            painel.add(btnNovo);
+            painel.add(Box.createRigidArea(new Dimension(0, 10))); // Espaçamento
+            
+            // Avisa o painel que ele precisa atualizar o visual porque ganhou um botão
+            painel.revalidate();
+            painel.repaint();
+            
+        }
+        botoesLaterais.add(tituloChat);
+        btnNovo.setBackground(Color.decode("#b2bdff"));
     }
 }
 
