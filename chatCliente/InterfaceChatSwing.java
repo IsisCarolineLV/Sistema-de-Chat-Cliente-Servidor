@@ -12,20 +12,24 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InterfaceChatSwing {
 
     private static ArrayList<String> botoesLaterais = new ArrayList<>();
     private static java.util.List<JPanel> todosPaineisLaterais = new java.util.ArrayList<>();
+    private static Map<String, JButton> botaoEnviarDeCadaChat = new HashMap<>();
     private static CardLayout cardLayout=null;
     private static JPanel painelGerenciador=null;
+    private static JFrame janela=null;
     private static Socket socket;
     private static InputStreamReader inputLeitor = null;
     private static OutputStreamWriter outputEscritor = null;
     private static BufferedReader bufferReader = null;
     private static BufferedWriter bufferWriter = null;
+    private static LeitorMensagensRecebidas leitorDeMensagem =null;
     private static String ipServidor;
     private static int portaServer;
     private static String meuNome;
@@ -38,11 +42,9 @@ public class InterfaceChatSwing {
 
     private static void criarTela() {
         // Configuração da janela principal 
-        JFrame janela = new JFrame("Sistema de Chat");
+        janela = new JFrame("Chat Maneiro");
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        
-        
         janela.getContentPane().setPreferredSize(new Dimension(810, 810));
         janela.pack(); 
         janela.setResizable(false); // Trava o redimensionamento
@@ -124,12 +126,20 @@ public class InterfaceChatSwing {
         // TELA DO CHAT
         PainelComFundo telaChat = criarTelaChat("chatCliente/imagens/TelaChat.png", "Chat Geral");
 
+        //so pra testas as telas laterais, depois tem que tirar
+        PainelComFundo telaIsis = criarTelaChat("chatCliente/imagens/TelaChat.png", "Isis");
+        PainelComFundo telaLevi = criarTelaChat("chatCliente/imagens/TelaChat.png", "Levi");
+
         //Adiciona as telas no gerenciador:
 
         //A primeira tela adicionada é a que aparece por padrão
         painelGerenciador.add(telaConexao, "TELA_CONEXAO");
         painelGerenciador.add(telaMenu, "TELA_MENU");
-        painelGerenciador.add(telaChat, "TELA_CHAT");
+        painelGerenciador.add(telaChat, "Chat Geral");
+        painelGerenciador.add(telaIsis, "Isis");
+        painelGerenciador.add(telaLevi, "Levi");
+
+        janela.getRootPane().setDefaultButton(btnConectar);
 
         //Mudanca de tela:
         // Conexao -> Nome
@@ -147,6 +157,7 @@ public class InterfaceChatSwing {
                         portaServer = Integer.parseInt(porta);
                         socket = new Socket(ipServidor,portaServer );
                         cardLayout.show(painelGerenciador, "TELA_MENU");
+                        janela.getRootPane().setDefaultButton(btnEntrar);
                     } catch(NumberFormatException n){
                         txtPorta.setText(""); 
                         lblPlaceholderPorta.setForeground(Color.RED);
@@ -184,7 +195,7 @@ public class InterfaceChatSwing {
                 janela.requestFocusInWindow(); 
             }else {
                 try {
-                    socket = new Socket(ipServidor, portaServer); //mudado aq tbm
+                    //socket = new Socket(ipServidor, portaServer); //mudado aq tbm
 
                     inputLeitor = new InputStreamReader(socket.getInputStream());
                     outputEscritor = new OutputStreamWriter(socket.getOutputStream());
@@ -211,8 +222,9 @@ public class InterfaceChatSwing {
                         socket.close();
                     }else{
                         meuNome = nome;
-                        cardLayout.show(painelGerenciador, "TELA_CHAT");
-                        LeitorMensagensRecebidas leitorDeMensagem = new LeitorMensagensRecebidas(bufferReader);
+                        cardLayout.show(painelGerenciador, "Chat Geral");
+                        janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get("Chat Geral"));
+                        leitorDeMensagem = new LeitorMensagensRecebidas(bufferReader);
                         leitorDeMensagem.start();
                     }
                 } catch (IOException e1) {
@@ -324,7 +336,7 @@ public class InterfaceChatSwing {
             btnChatLateral.setBackground(Color.decode("#458c98"));
         }
         btnChatLateral.addActionListener(e ->{
-            cardLayout.show(painelGerenciador, "TELA_CHAT");
+            cardLayout.show(painelGerenciador, "Chat Geral");
         });
         //Demais botoes pros chats privados
         JPanel painelLateral = new JPanel();
@@ -343,6 +355,7 @@ public class InterfaceChatSwing {
             
             btnAntigo.addActionListener(e -> {
                 cardLayout.show(painelGerenciador, nomeAntigo);
+                janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(nomeAntigo));
             });
 
             painelLateral.add(btnAntigo);
@@ -381,6 +394,10 @@ public class InterfaceChatSwing {
                             bufferWriter.write("LISTAR_USUARIOS");
                         }else if(mensagem.equalsIgnoreCase("/ajuda")){
                             bufferWriter.write("AJUDA");
+                        }else if(mensagem.equalsIgnoreCase("/sair")){
+                            bufferWriter.write("SAIR");
+                            leitorDeMensagem.desligar();
+                            cardLayout.show(painelGerenciador, "TELA_CONEXAO");
                         }else if(mensagem.charAt(0)=='@'){
                             bufferWriter.write(meuNome+"|"+mensagem.substring(1));
                             //faz isso quando receber a confirmacao da existencia do usuario
@@ -388,10 +405,10 @@ public class InterfaceChatSwing {
                             //painelGerenciador.add(telaNova, mensagem.substring(1));
                             //bufferWriter.write("PRIVADA|"+mensagem.substring(1)+"|"+mensagemPrivada);
                         }else{
-                            bufferWriter.write("CHAT GERAL|"+mensagem);
+                            bufferWriter.write("CHAT GERAL|"+meuNome+"|"+mensagem);
                         }
                     }else{
-                        bufferWriter.write("PRIVADA|"+titulo+"|"+mensagem);
+                        bufferWriter.write("PRIVADA|"+meuNome+"|"+titulo+"|"+mensagem);
                     }
                     bufferWriter.newLine(); 
                     bufferWriter.flush();
@@ -408,6 +425,7 @@ public class InterfaceChatSwing {
         telaChat.add(lblTituloChat);
         telaChat.add(btnChatLateral);
         telaChat.add(scrollLateral);
+        botaoEnviarDeCadaChat.put(titulo, btnEnviar);
 
         return telaChat;
     }

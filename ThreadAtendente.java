@@ -33,7 +33,8 @@ public class ThreadAtendente extends Thread{
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
 
-            bufferWriter.write(nomeDoAtendido + ", seja bem-vindo ao chat geral!");
+            broadcast(nomeDoAtendido + " entrou do chat");
+            bufferWriter.write("Servidor|"+nomeDoAtendido + ", seja bem-vindo ao chat geral!");
             bufferWriter.newLine();
             bufferWriter.flush();
 
@@ -44,7 +45,7 @@ public class ThreadAtendente extends Thread{
                     break;
                 }
 
-                if(mensagemDoCliente.equalsIgnoreCase("/SAIR")) {
+                if(mensagemDoCliente.equalsIgnoreCase("SAIR")) {
                     semaforoTabela.acquire();
                     Servidor.socketCliente.remove(nomeDoAtendido);  //remove o cliente da tabela de roteamento
                     semaforoTabela.release();
@@ -69,8 +70,10 @@ public class ThreadAtendente extends Thread{
                     continue;
                 }*/
 
-                Mensagem mensagem = new Mensagem(mensagemDoCliente);    //mudar estrutura
+                Mensagem mensagem = new Mensagem(mensagemDoCliente);    //mudei a estrutura
+                                                                        // tipo | remetende | destino | mensagem
 
+                // deixei todas as funcoes num unico if
                 if(mensagem.getTipo().equals("LISTAR_USUARIOS")){
                     StringBuilder lista = new StringBuilder("Usuarios conectados: ");
                     semaforoTabela.acquire();
@@ -113,7 +116,7 @@ public class ThreadAtendente extends Thread{
                         OutputStreamWriter outputEscritorDestino = new OutputStreamWriter(socketDestino.getOutputStream());
                         BufferedWriter bufferWriterDestino =new BufferedWriter(outputEscritorDestino);
 
-                        bufferWriterDestino.write(nomeDoAtendido +"(privada): "+ mensagem.getConteudo());
+                        bufferWriterDestino.write("PRIVADA|"+nomeDoAtendido +"|"+mensagem.getDestino()+"|"+ mensagem.getConteudo());
                         bufferWriterDestino.newLine();
                         bufferWriterDestino.flush();
                     }
@@ -125,7 +128,6 @@ public class ThreadAtendente extends Thread{
                 bufferWriter.write("Mensagem recebida");
                 bufferWriter.newLine();
                 bufferWriter.flush();
-
                 
             }
 
@@ -156,7 +158,7 @@ public class ThreadAtendente extends Thread{
                 if (bufferWriter != null) bufferWriter.close();
                 if (bufferReader != null) bufferReader.close();
 
-                broadcast(nomeDoAtendido + " foi desconectado");
+                broadcast(nomeDoAtendido + " saiu do chat");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -172,7 +174,7 @@ public class ThreadAtendente extends Thread{
             OutputStreamWriter outputEscritorC = new OutputStreamWriter(c.getValue().getOutputStream());
             BufferedWriter bufferWriterC =new BufferedWriter(outputEscritorC);
 
-            bufferWriterC.write(nomeDoAtendido +": "+ mensagem);
+            bufferWriterC.write(nomeDoAtendido +"|"+ mensagem);
             bufferWriterC.newLine();
             bufferWriterC.flush();
 
