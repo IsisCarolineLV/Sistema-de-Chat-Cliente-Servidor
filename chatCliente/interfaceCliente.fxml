@@ -11,7 +11,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <AnchorPane fx:id="paneMenu1" prefHeight="810.0" prefWidth="810.0">
@@ -77,14 +76,38 @@
             </Button>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="paneChat" prefHeight="810.0" prefWidth="810.0" visible="false">
+      <AnchorPane fx:id="paneChat" prefHeight="810.0" prefWidth="810.0">
          <children>
             <ImageView fx:id="textoMsg" fitHeight="810.0" fitWidth="810.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@imagens/TelaChat.png" />
                </image>
             </ImageView>
-            <ScrollPane layoutX="186.0" layoutY="28.0" opacity="0.0" prefHeight="680.0" prefWidth="612.0" />
+            <ScrollPane hmin="20.0" hvalue="20.0" layoutX="186.0" layoutY="28.0" prefHeight="680.0" prefWidth="612.0">
+               <content>
+                  <AnchorPane prefHeight="182.0" prefWidth="419.0">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <children>
+                        <ImageView fitHeight="115.0" fitWidth="274.0" layoutX="14.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@imagens/balaoOutro.png" />
+                           </image>
+                        </ImageView>
+                        <Label layoutX="29.0" layoutY="33.0" text="Nome" textFill="#c3d7ea">
+                           <font>
+                              <Font name="Noto Sans Bold" size="22.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="29.0" layoutY="75.0" prefHeight="22.0" prefWidth="246.0" text="Mensagem aqui" textFill="#edf4fa">
+                           <font>
+                              <Font name="Noto Sans Regular" size="15.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content></ScrollPane>
             <Label layoutX="219.0" layoutY="735.0" prefHeight="49.0" prefWidth="471.0" text="Digite aqui..." textFill="#88adb3">
                <font>
                   <Font name="Noto Sans Regular" size="31.0" />

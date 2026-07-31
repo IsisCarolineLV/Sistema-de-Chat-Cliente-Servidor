@@ -106,8 +106,6 @@ public class InterfaceChatSwing {
         /////////////////////////////////////////////////////
         // TELA DO CHAT
         PainelComFundo telaChat = criarTelaChat("chatCliente/imagens/TelaChat.png", "Chat Geral");
-        PainelComFundo telaIsis = criarTelaChat("chatCliente/imagens/TelaChat.png", "Isis");
-        PainelComFundo telaOlavo = criarTelaChat("chatCliente/imagens/TelaChat.png", "Olavo");
 
         //Adiciona as telas no gerenciador:
 
@@ -115,8 +113,6 @@ public class InterfaceChatSwing {
         painelGerenciador.add(telaConexao, "TELA_CONEXAO");
         painelGerenciador.add(telaMenu, "TELA_MENU");
         painelGerenciador.add(telaChat, "TELA_CHAT");
-        painelGerenciador.add(telaIsis, "Isis");
-        painelGerenciador.add(telaOlavo, "Olavo");
 
         //Mudanca de tela:
         // Conexao -> Nome
@@ -138,8 +134,6 @@ public class InterfaceChatSwing {
                 cardLayout.show(painelGerenciador, "TELA_CHAT");
             }
         });
-
-        
 
         // Configuração final
         janela.add(painelGerenciador);
@@ -174,20 +168,37 @@ public class InterfaceChatSwing {
         PainelComFundo telaChat = new PainelComFundo(caminho);
         telaChat.setLayout(null);
 
-        //acho que isso vai sair...
-        JTextArea areaMensagens = new JTextArea();
-        areaMensagens.setEditable(false);
-        areaMensagens.setOpaque(false);
-        areaMensagens.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        areaMensagens.setForeground(Color.WHITE);
-        areaMensagens.setLineWrap(true);
+        JPanel painelMensagens = new JPanel();
+        painelMensagens.setOpaque(false);
+        painelMensagens.setLayout(new BoxLayout(painelMensagens, BoxLayout.Y_AXIS));
+        JPanel wrapperMensagens = new JPanel(new BorderLayout());
+        wrapperMensagens.setOpaque(false);
+        // O BorderLayout.NORTH é o que força as mensagens a ficarem espremidas em cima!
+        wrapperMensagens.add(painelMensagens, BorderLayout.NORTH);
 
-        //Scroll para as mensagens da conversa
-        JScrollPane scrollChat = new JScrollPane(areaMensagens);
-        scrollChat.setBounds(186, 28, 612, 680);
+        MensagemPanel novoBalao = new MensagemPanel("Isis", "Oii! Essa é uma mensagem de teste");
+        MensagemPanel novoBalao2 = new MensagemPanel("Oii! Essa é uma mensagem de teste minha :P");
+        MensagemPanel novoBalao3 = new MensagemPanel("Isis", "Oii! Essa é uma mensagem de teste");
+
+        for(int i=0; i<20; i++){
+            MensagemPanel novoB = new MensagemPanel("Isis "+i, "Oii! Essa é uma mensagem de teste");
+            painelMensagens.add(novoB);
+        }
+
+        // Adiciona o balão no painel que está dentro do JScrollPane
+        painelMensagens.add(novoBalao);
+        painelMensagens.add(novoBalao2);
+        painelMensagens.add(novoBalao3);
+
+        // Scroll para as mensagens da conversa
+        JScrollPane scrollChat = new JScrollPane(wrapperMensagens);
+        scrollChat.setBounds(186, 65, 612, 625);
         scrollChat.setOpaque(false);
         scrollChat.getViewport().setOpaque(false); 
         scrollChat.setBorder(null);
+        scrollChat.getVerticalScrollBar().setUnitIncrement(16);
+        scrollChat.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+        scrollChat.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
         
         //Place holder indicando onde digitar a mensagem
         JLabel lblPlaceholderMsg = new JLabel("Digite aqui...");
@@ -254,8 +265,6 @@ public class InterfaceChatSwing {
         if(!titulo.equals("Chat Geral")){
             adicionarNovoChatNaLateral(titulo);
         }
-
-        
 
         //Scroll Lateral
         
