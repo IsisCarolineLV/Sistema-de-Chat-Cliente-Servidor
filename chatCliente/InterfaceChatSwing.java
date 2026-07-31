@@ -273,6 +273,8 @@ public class InterfaceChatSwing {
         scrollLateral.setOpaque(false);
         scrollLateral.getViewport().setOpaque(false); 
         scrollLateral.setBorder(null);
+        scrollLateral.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+        scrollLateral.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
         
         telaChat.add(scrollChat);
         telaChat.add(txtMensagem);
