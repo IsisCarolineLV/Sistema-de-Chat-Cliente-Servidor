@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class InterfaceChatSwing {
@@ -57,7 +58,7 @@ public class InterfaceChatSwing {
 
         // Texto exemplo IP
         JLabel lblPlaceholderIp = new JLabel("Ex: 10.0.0.0");
-        lblPlaceholderIp.setBounds(151, 224, 351, 49);
+        lblPlaceholderIp.setBounds(151, 224, 551, 49);
         lblPlaceholderIp.setForeground(Color.decode("#88adb3"));
         lblPlaceholderIp.setFont(new Font("SansSerif", Font.PLAIN, 31));
         
@@ -141,9 +142,30 @@ public class InterfaceChatSwing {
             if (!ipServidor.trim().isEmpty() && !porta.trim().isEmpty()) {
                 socket =null;
                 //try {
-                    portaServer = Integer.parseInt(porta);
-                    //socket = new Socket(ipServidor,portaServer );
-                    cardLayout.show(painelGerenciador, "TELA_MENU");
+                    
+                    try {
+                        portaServer = Integer.parseInt(porta);
+                        socket = new Socket(ipServidor,portaServer );
+                        cardLayout.show(painelGerenciador, "TELA_MENU");
+                    } catch(NumberFormatException n){
+                        txtPorta.setText(""); 
+                        lblPlaceholderPorta.setForeground(Color.RED);
+                        lblPlaceholderPorta.setText("Porta inválida!"); 
+                        lblPlaceholderPorta.setVisible(true);
+                        janela.requestFocusInWindow(); 
+                    } catch (Exception e1) {
+                        //e1.printStackTrace();
+                        txtIp.setText(""); 
+                        lblPlaceholderIp.setForeground(Color.RED);
+                        lblPlaceholderIp.setText("Servidor não encontrado"); 
+                        lblPlaceholderIp.setVisible(true);
+                        txtPorta.setText(""); 
+                        lblPlaceholderPorta.setForeground(Color.RED);
+                        lblPlaceholderPorta.setText("Porta não encontrada"); 
+                        lblPlaceholderPorta.setVisible(true);
+                        janela.requestFocusInWindow(); 
+                    }
+                    
                 //} catch (IOException e1) {
                     //e1.printStackTrace();
                 //}
@@ -218,14 +240,14 @@ public class InterfaceChatSwing {
         campo.setOpaque(false); 
         campo.setBorder(null);  
         campo.setFont(new Font("SansSerif", Font.PLAIN, 31));
-        campo.setForeground(Color.WHITE); 
+        campo.setForeground(Color.decode("#500bc1")); 
         campo.setCaretColor(Color.BLACK); 
         
         campo.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) { 
                 placeholder.setVisible(false); 
                 placeholder.setForeground(Color.decode("#88adb3"));
-                placeholder.setText("Digite seu nome aqui...");
+                placeholder.setText("Digite aqui");
             }
             public void focusLost(FocusEvent e) { if(campo.getText().isEmpty()) placeholder.setVisible(true); }
         });
