@@ -33,7 +33,7 @@ public class ThreadAtendente extends Thread{
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
 
-            broadcast(nomeDoAtendido + " entrou do chat");
+            //broadcast("Servidor", nomeDoAtendido + " entrou do chat");
             bufferWriter.write("Servidor|"+nomeDoAtendido + ", seja bem-vindo ao chat geral!");
             bufferWriter.newLine();
             bufferWriter.flush();
@@ -91,7 +91,7 @@ public class ThreadAtendente extends Thread{
 
                     continue;
                 }else if(mensagem.getTipo().equals("AJUDA")){
-                    String listaComandos = "Servidor|1. /ajuda: exibe comandos\n"+ 
+                    String listaComandos = "1. /ajuda: exibe comandos\n"+ 
                     "2. /listar: exibe uma lista de todos os usuarios online\n"+
                     "3. @nomeUsuario: inicia um chat privado com o usuario\n"+
                     "4. /sair: fecha a conexão com os servidor";
@@ -101,7 +101,7 @@ public class ThreadAtendente extends Thread{
                     continue;
                 }else  if(mensagem.getTipo().equals("CHAT GERAL")){
                     //manda pra todo mundo no chat geral
-                    broadcast(mensagem.getConteudo());
+                    broadcast(mensagem.getRemetente(), mensagem.getConteudo());
                 }else{
                     //manda pra uma pessoa especifica
                     semaforoTabela.acquire();
@@ -109,13 +109,15 @@ public class ThreadAtendente extends Thread{
                     Socket socketDestino = Servidor.socketCliente.get(mensagem.getDestino());
                     semaforoTabela.release();
                     if(socketDestino == null){
-                        bufferWriter.write("Usuario não encontrado");
+                        bufferWriter.write("PRIVADA|Servidor|Usuario não encontrado");
                         bufferWriter.newLine();
                         bufferWriter.flush();
                     }else{
                         OutputStreamWriter outputEscritorDestino = new OutputStreamWriter(socketDestino.getOutputStream());
                         BufferedWriter bufferWriterDestino =new BufferedWriter(outputEscritorDestino);
-
+                        bufferWriter.write("PRIVADA|Servidor|"+mensagem.getDestino()+"|"+ mensagem.getConteudo());
+                        bufferWriter.newLine();
+                        bufferWriter.flush();
                         bufferWriterDestino.write("PRIVADA|"+nomeDoAtendido +"|"+mensagem.getDestino()+"|"+ mensagem.getConteudo());
                         bufferWriterDestino.newLine();
                         bufferWriterDestino.flush();
@@ -123,11 +125,11 @@ public class ThreadAtendente extends Thread{
                         
                 }
 
-                System.out.println(nomeDoAtendido +": "+ mensagem.getConteudo());
+                /*System.out.println(nomeDoAtendido +": "+ mensagem.getConteudo());
 
                 bufferWriter.write("Mensagem recebida");
                 bufferWriter.newLine();
-                bufferWriter.flush();
+                bufferWriter.flush();*/
                 
             }
 
@@ -158,7 +160,7 @@ public class ThreadAtendente extends Thread{
                 if (bufferWriter != null) bufferWriter.close();
                 if (bufferReader != null) bufferReader.close();
 
-                broadcast(nomeDoAtendido + " saiu do chat");
+                broadcast("Servidor", nomeDoAtendido + " saiu do chat");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -167,14 +169,14 @@ public class ThreadAtendente extends Thread{
         
     }
 
-    public void broadcast(String mensagem) throws InterruptedException, IOException{
+    public void broadcast(String autor, String mensagem) throws InterruptedException, IOException{
 
         semaforoTabela.acquire();
         for(Map.Entry<String, Socket> c: Servidor.socketCliente.entrySet()){
             OutputStreamWriter outputEscritorC = new OutputStreamWriter(c.getValue().getOutputStream());
             BufferedWriter bufferWriterC =new BufferedWriter(outputEscritorC);
 
-            bufferWriterC.write(nomeDoAtendido +"|"+ mensagem);
+            bufferWriterC.write("CHAT GERAL|"+autor +"|"+ mensagem);
             bufferWriterC.newLine();
             bufferWriterC.flush();
 

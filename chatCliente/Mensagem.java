@@ -10,7 +10,7 @@ public class Mensagem {
         String[] termos = mensagem.split("\\|");
         if(termos.length==1){
             tipo = mensagem;
-            System.out.println("COMANDO DE UMA LINHA:"+mensagem);
+            System.out.println ("COMANDO DE UMA LINHA:"+mensagem);
         }else if (termos.length==3){
             tipo = termos[0];
             remetente = termos[1];

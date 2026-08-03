@@ -15,12 +15,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 public class InterfaceChatSwing {
 
     private static ArrayList<String> botoesLaterais = new ArrayList<>();
     private static java.util.List<JPanel> todosPaineisLaterais = new java.util.ArrayList<>();
     private static Map<String, JButton> botaoEnviarDeCadaChat = new HashMap<>();
+    private static Map<String,JPanel> PanelsMensagemTelas = new HashMap<>();
     private static CardLayout cardLayout=null;
     private static JPanel painelGerenciador=null;
     private static JFrame janela=null;
@@ -33,6 +35,10 @@ public class InterfaceChatSwing {
     private static String ipServidor;
     private static int portaServer;
     private static String meuNome;
+
+    private static JButton btnConectar;
+
+    private static Semaphore semaforoMapPanels = new Semaphore(1);
 
     //Scanner scan = new Scanner(System.in); //scan jogado pra junto das variaveis
 
@@ -56,7 +62,8 @@ public class InterfaceChatSwing {
 
         /////////////////////////////////////////////////////
         // TELA DE CONEXAO
-        PainelComFundo telaConexao = new PainelComFundo("chatCliente/imagens/telaConexao.png");
+        //PainelComFundo telaConexao = new PainelComFundo("chatCliente/imagens/telaConexao.png");
+        PainelComFundo telaConexao = new PainelComFundo("imagens/telaConexao.png");
         telaConexao.setLayout(null); 
 
         // Texto exemplo IP
@@ -82,7 +89,7 @@ public class InterfaceChatSwing {
         configurarCampoInvisivel(txtPorta, lblPlaceholderPorta);
 
         // Botão Conectar
-        JButton btnConectar = new JButton();
+        btnConectar = new JButton();
         btnConectar.setBounds(248, 618, 312, 64);
         configurarBotaoInvisivel(btnConectar);
 
@@ -94,7 +101,8 @@ public class InterfaceChatSwing {
 
         /////////////////////////////////////////////////////
         // TELA DE DEFINICAO DO NOME
-        PainelComFundo telaMenu = new PainelComFundo("chatCliente/imagens/Menu.png");
+        //PainelComFundo telaMenu = new PainelComFundo("chatCliente/imagens/Menu.png");
+        PainelComFundo telaMenu = new PainelComFundo("imagens/Menu.png");
         telaMenu.setLayout(null); 
 
         //Placeholder indicando onde digitar
@@ -125,11 +133,12 @@ public class InterfaceChatSwing {
 
         /////////////////////////////////////////////////////
         // TELA DO CHAT
-        PainelComFundo telaChat = criarTelaChat("chatCliente/imagens/TelaChat.png", "Chat Geral");
+        //PainelComFundo telaChat = criarTelaChat("chatCliente/imagens/TelaChat.png", "Chat Geral");
+        PainelComFundo telaChat = criarTelaChat("imagens/TelaChat.png", "Chat Geral");
 
         //so pra testas as telas laterais, depois tem que tirar
-        PainelComFundo telaIsis = criarTelaChat("chatCliente/imagens/TelaChat.png", "Isis");
-        PainelComFundo telaLevi = criarTelaChat("chatCliente/imagens/TelaChat.png", "Levi");
+        //PainelComFundo telaIsis = criarTelaChat("chatCliente/imagens/TelaChat.png", "Isis");
+        //PainelComFundo telaLevi = criarTelaChat("chatCliente/imagens/TelaChat.png", "Levi");
 
         //Adiciona as telas no gerenciador:
 
@@ -137,8 +146,8 @@ public class InterfaceChatSwing {
         painelGerenciador.add(telaConexao, "TELA_CONEXAO");
         painelGerenciador.add(telaMenu, "TELA_MENU");
         painelGerenciador.add(telaChat, "Chat Geral");
-        painelGerenciador.add(telaIsis, "Isis");
-        painelGerenciador.add(telaLevi, "Levi");
+        //painelGerenciador.add(telaIsis, "Isis");
+        //painelGerenciador.add(telaLevi, "Levi");
 
         janela.getRootPane().setDefaultButton(btnConectar);
 
@@ -279,24 +288,19 @@ public class InterfaceChatSwing {
         JPanel painelMensagens = new JPanel();
         painelMensagens.setOpaque(false);
         painelMensagens.setLayout(new BoxLayout(painelMensagens, BoxLayout.Y_AXIS));
+
+        try {
+            semaforoMapPanels.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        PanelsMensagemTelas.put(titulo, painelMensagens);
+        semaforoMapPanels.release();
+
         JPanel wrapperMensagens = new JPanel(new BorderLayout());
         wrapperMensagens.setOpaque(false);
         // O BorderLayout.NORTH é o que força as mensagens a ficarem espremidas em cima!
         wrapperMensagens.add(painelMensagens, BorderLayout.NORTH);
-
-        /*MensagemPanel novoBalao = new MensagemPanel("Isis", "Oii! Essa é uma mensagem de teste");
-        MensagemPanel novoBalao2 = new MensagemPanel("Oii! Essa é uma mensagem de teste minha :P");
-        MensagemPanel novoBalao3 = new MensagemPanel("Isis", "Oii! Essa é uma mensagem de teste");
-
-        for(int i=0; i<20; i++){
-            MensagemPanel novoB = new MensagemPanel("Isis "+i, "Oii! Essa é uma mensagem de teste");
-            painelMensagens.add(novoB);
-        }
-
-        // Adiciona o balão no painel que está dentro do JScrollPane
-        painelMensagens.add(novoBalao);
-        painelMensagens.add(novoBalao2);
-        painelMensagens.add(novoBalao3);*/
 
         // Scroll para as mensagens da conversa
         JScrollPane scrollChat = new JScrollPane(wrapperMensagens);
@@ -390,12 +394,13 @@ public class InterfaceChatSwing {
         btnEnviar.addActionListener(e -> {
             String mensagem = txtMensagem.getText();
             if (!mensagem.trim().isEmpty()){
-                MensagemPanel novaMsg = new MensagemPanel(mensagem);
-                painelMensagens.add(novaMsg);
-                txtMensagem.setText("");
+                
                 try {
 
                     if(titulo.equals("Chat Geral")){
+                        MensagemPanel novaMsg = new MensagemPanel(mensagem);
+                        painelMensagens.add(novaMsg);
+                        txtMensagem.setText("");
                         if(mensagem.equalsIgnoreCase("/listar")){
                             bufferWriter.write("LISTAR_USUARIOS");
                         }else if(mensagem.equalsIgnoreCase("/ajuda")){
@@ -405,15 +410,12 @@ public class InterfaceChatSwing {
                             leitorDeMensagem.desligar();
                             cardLayout.show(painelGerenciador, "TELA_CONEXAO");
                         }else if(mensagem.charAt(0)=='@'){
-                            bufferWriter.write(meuNome+"|"+mensagem.substring(1));
-                            //faz isso quando receber a confirmacao da existencia do usuario
-                            //PainelComFundo telaNova = criarTelaChat(caminho, mensagem.substring(1));
-                            //painelGerenciador.add(telaNova, mensagem.substring(1));
-                            //bufferWriter.write("PRIVADA|"+mensagem.substring(1)+"|"+mensagemPrivada);
+                            bufferWriter.write("PRIVADA|"+meuNome+"|"+ mensagem.trim().split(" ")[0].substring(1) +"|"+mensagem); //tripla
                         }else{
-                            bufferWriter.write("CHAT GERAL|"+meuNome+"|"+mensagem);
+                            bufferWriter.write("CHAT GERAL|"+meuNome+"|"+mensagem); //tripla
                         }
                     }else{
+                        txtMensagem.setText("");
                         bufferWriter.write("PRIVADA|"+meuNome+"|"+titulo+"|"+mensagem);
                     }
                     bufferWriter.newLine(); 
@@ -523,12 +525,68 @@ public class InterfaceChatSwing {
                     String msg = bufferReader.readLine();
 
                     if(!msg.equals(null)){
+                        Mensagem novaMensagem = new Mensagem(msg);
+                        if(novaMensagem.getRemetente().equals(meuNome)) continue;
+                        else if(novaMensagem.getRemetente().equals("Servidor")) {
+                            if(novaMensagem.getTipo().equals("PRIVADA") && 
+                            !novaMensagem.getConteudo().equals("Usuario não encontrado")){
+                                semaforoMapPanels.acquire();
+                                JPanel panel = PanelsMensagemTelas.get(novaMensagem.getDestino());
+                                semaforoMapPanels.release();
+                                if(panel==null){
+                                    PainelComFundo novatela = criarTelaChat("imagens/TelaChat.png", novaMensagem.getDestino());
+                                    painelGerenciador.add(novaMensagem.getDestino(), novatela);
+                                    cardLayout.show(painelGerenciador, novaMensagem.getDestino());
+                                    semaforoMapPanels.acquire();
+                                    panel = PanelsMensagemTelas.get(novaMensagem.getDestino());
+                                    semaforoMapPanels.release();
+                                }
+
+                                MensagemPanel novaMensagemPanel = new MensagemPanel(novaMensagem.getConteudo());
+                                panel.add(novaMensagemPanel);
+                                panel.revalidate();
+                                panel.repaint();
+                            }
+                        }
+                        else if(novaMensagem.getTipo().equals("CHAT GERAL")){
+                            MensagemPanel novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
+                            semaforoMapPanels.acquire();
+                            JPanel panel = PanelsMensagemTelas.get("Chat Geral");
+                            semaforoMapPanels.release();
+                            panel.add(novaMensagemPanel);
+                            panel.revalidate();
+                            panel.repaint();
+                        }
+                        else if(novaMensagem.getTipo().equals("PRIVADA")){
+
+                            semaforoMapPanels.acquire();
+                            JPanel panel = PanelsMensagemTelas.get(novaMensagem.getRemetente());
+                            semaforoMapPanels.release();
+                            if(panel==null){
+                                System.out.println("É null coitado");
+                                PainelComFundo novatela = criarTelaChat("imagens/TelaChat.png", novaMensagem.getRemetente());
+                                painelGerenciador.add(novaMensagem.getRemetente(), novatela);
+                                //cardLayout.show(painelGerenciador, novaMensagem.getConteudo());
+                                semaforoMapPanels.acquire();
+                                panel = PanelsMensagemTelas.get(novaMensagem.getRemetente());
+                                semaforoMapPanels.release();
+                            }
+
+                            MensagemPanel novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
+                            panel.add(novaMensagemPanel);
+                            panel.revalidate();
+                            panel.repaint();
+                        }
+
                         System.out.println(msg);
                     }
-                    sleep(1000);    //pra nao ficar lendo toda hora e ocupando a cpu
+                    sleep(300);    //pra nao ficar lendo toda hora e ocupando a cpu
 
                 }catch(Exception e){
                     e.printStackTrace();
+                    desligar();
+                    cardLayout.show(painelGerenciador, "TELA_CONEXAO");
+                    //btnConectar.doClick();
                 }
             }
         }
