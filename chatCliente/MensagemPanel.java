@@ -41,8 +41,7 @@ public class MensagemPanel extends JPanel {
         // Limita a largura para a mensagem quebrar de linha se for muito longa
         setMaximumSize(new Dimension(580, Integer.MAX_VALUE));
         
-        // Garante que o painel fique alinhado à esquerda no ScrollPane
-        setAlignmentX(Component.LEFT_ALIGNMENT); 
+        setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
     public MensagemPanel(String mensagem) {
@@ -55,14 +54,14 @@ public class MensagemPanel extends JPanel {
         // Espaçamento entre uma mensagem e outra (Cima, Esquerda, Baixo, Direita)
         setBorder(BorderFactory.createEmptyBorder(5, 15, 15, 15)); 
 
-        JLabel lblNome = new JLabel("Você:");
+        JLabel lblNome = new JLabel("Você:   ");
         // Uma fonte em negrito e um pouco maior para destacar o remetente
         lblNome.setFont(new Font("SansSerif", Font.BOLD, 23)); 
         lblNome.setForeground(Color.BLACK);
         lblNome.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         JTextPane txtMensagem = new JTextPane();
-        txtMensagem.setText(mensagem);
+        txtMensagem.setText(mensagem+"   ");
         txtMensagem.setEditable(false);
         txtMensagem.setOpaque(false);
         txtMensagem.setFont(new Font("SansSerif", Font.PLAIN, 20)); 
@@ -85,7 +84,38 @@ public class MensagemPanel extends JPanel {
         // Limita a largura para a mensagem quebrar de linha se for muito longa
         setMaximumSize(new Dimension(580, Integer.MAX_VALUE));
         
-        // Garante que o painel fique alinhado à esquerda no ScrollPane
-        setAlignmentX(Component.LEFT_ALIGNMENT); 
+        setAlignmentX(Component.CENTER_ALIGNMENT);
+    }
+
+    public MensagemPanel(String mensagemSistema, boolean isSistema) {
+        setOpaque(false);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        
+        // Espaçamento um pouco maior para isolar a mensagem no meio da tela
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15)); 
+
+        JTextPane txtMensagem = new JTextPane();
+        txtMensagem.setText(mensagemSistema);
+        txtMensagem.setEditable(false);
+        txtMensagem.setOpaque(false);
+        
+        // Fonte em Itálico, ligeiramente menor, com cor de destaque (ex: Amarelo Ouro)
+        txtMensagem.setFont(new Font("SansSerif", Font.ITALIC, 19)); 
+        txtMensagem.setForeground(Color.decode("#053028")); 
+
+        // Forçando o parágrafo a alinhar ao CENTRO dentro da caixa
+        javax.swing.text.StyledDocument doc = txtMensagem.getStyledDocument();
+        javax.swing.text.SimpleAttributeSet alinhamentoCentro = new javax.swing.text.SimpleAttributeSet();
+        javax.swing.text.StyleConstants.setAlignment(alinhamentoCentro, javax.swing.text.StyleConstants.ALIGN_CENTER);
+        doc.setParagraphAttributes(0, doc.getLength(), alinhamentoCentro, false);
+
+        txtMensagem.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        add(txtMensagem);
+
+        setMaximumSize(new Dimension(580, Integer.MAX_VALUE));
+        
+        // Garante que o painel flutue no centro do ScrollPane
+        setAlignmentX(Component.CENTER_ALIGNMENT); 
     }
 }

@@ -33,7 +33,7 @@ public class ThreadAtendente extends Thread{
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
 
-            //broadcast("Servidor", nomeDoAtendido + " entrou do chat");
+            broadcast(nomeDoAtendido + " entrou do chat");
             bufferWriter.write("Servidor|"+nomeDoAtendido + ", seja bem-vindo ao chat geral!");
             bufferWriter.newLine();
             bufferWriter.flush();
@@ -75,7 +75,7 @@ public class ThreadAtendente extends Thread{
 
                 // deixei todas as funcoes num unico if
                 if(mensagem.getTipo().equals("LISTAR_USUARIOS")){
-                    StringBuilder lista = new StringBuilder("Usuarios conectados: ");
+                    StringBuilder lista = new StringBuilder("Servidor|Usuarios conectados: ");
                     semaforoTabela.acquire();
                     for(String nomeConectado : Servidor.socketCliente.keySet()){
                         lista.append(nomeConectado).append(", ");//coloca os clientes conecotados na lista 
@@ -91,11 +91,16 @@ public class ThreadAtendente extends Thread{
 
                     continue;
                 }else if(mensagem.getTipo().equals("AJUDA")){
-                    String listaComandos = "1. /ajuda: exibe comandos\n"+ 
-                    "2. /listar: exibe uma lista de todos os usuarios online\n"+
-                    "3. @nomeUsuario: inicia um chat privado com o usuario\n"+
-                    "4. /sair: fecha a conexão com os servidor";
-                    bufferWriter.write(listaComandos);
+                    bufferWriter.write("Servidor|/ajuda: exibe comandos");
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+                    bufferWriter.write("Servidor|/listar: exibe uma lista de todos os usuarios online");
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+                    bufferWriter.write("Servidor|@nomeUsuario: inicia um chat privado com o usuario");
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+                    bufferWriter.write("Servidor|/sair: fecha a conexão com os servidor");
                     bufferWriter.newLine();
                     bufferWriter.flush();
                     continue;
@@ -160,7 +165,7 @@ public class ThreadAtendente extends Thread{
                 if (bufferWriter != null) bufferWriter.close();
                 if (bufferReader != null) bufferReader.close();
 
-                broadcast("Servidor", nomeDoAtendido + " saiu do chat");
+                broadcast( nomeDoAtendido + " saiu do chat");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -177,6 +182,22 @@ public class ThreadAtendente extends Thread{
             BufferedWriter bufferWriterC =new BufferedWriter(outputEscritorC);
 
             bufferWriterC.write("CHAT GERAL|"+autor +"|"+ mensagem);
+            bufferWriterC.newLine();
+            bufferWriterC.flush();
+
+        }
+        semaforoTabela.release();
+
+    }
+
+    public void broadcast( String mensagem) throws InterruptedException, IOException{
+
+        semaforoTabela.acquire();
+        for(Map.Entry<String, Socket> c: Servidor.socketCliente.entrySet()){
+            OutputStreamWriter outputEscritorC = new OutputStreamWriter(c.getValue().getOutputStream());
+            BufferedWriter bufferWriterC =new BufferedWriter(outputEscritorC);
+
+            bufferWriterC.write("Servidor|"+ mensagem);
             bufferWriterC.newLine();
             bufferWriterC.flush();
 

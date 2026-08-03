@@ -420,6 +420,7 @@ public class InterfaceChatSwing {
                     }
                     bufferWriter.newLine(); 
                     bufferWriter.flush();
+                    scrollarPraBaixo(painelMensagens);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -467,6 +468,18 @@ public class InterfaceChatSwing {
         }
         botoesLaterais.add(tituloChat);
         btnNovo.setBackground(Color.decode("#b2bdff"));
+    }
+
+    private static void scrollarPraBaixo(JPanel panel){
+            final JPanel painelFinal = panel; 
+        
+            SwingUtilities.invokeLater(() -> {
+                JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, painelFinal);
+                if (scroll != null) {
+                    JScrollBar barraVertical = scroll.getVerticalScrollBar();
+                    barraVertical.setValue(barraVertical.getMaximum());
+                }
+            });
     }
 
     private static String gerarNickAleatorio() {
@@ -546,6 +559,16 @@ public class InterfaceChatSwing {
                                 panel.add(novaMensagemPanel);
                                 panel.revalidate();
                                 panel.repaint();
+                                scrollarPraBaixo(panel);
+                            }else{
+                                MensagemPanel novaMensagemPanel = new MensagemPanel(novaMensagem.getConteudo(), true);
+                                semaforoMapPanels.acquire();
+                                JPanel panel = PanelsMensagemTelas.get("Chat Geral");
+                                semaforoMapPanels.release();
+                                panel.add(novaMensagemPanel);
+                                panel.revalidate();
+                                panel.repaint();
+                                scrollarPraBaixo(panel);
                             }
                         }
                         else if(novaMensagem.getTipo().equals("CHAT GERAL")){
@@ -556,6 +579,7 @@ public class InterfaceChatSwing {
                             panel.add(novaMensagemPanel);
                             panel.revalidate();
                             panel.repaint();
+                            scrollarPraBaixo(panel);
                         }
                         else if(novaMensagem.getTipo().equals("PRIVADA")){
 
@@ -576,9 +600,10 @@ public class InterfaceChatSwing {
                             panel.add(novaMensagemPanel);
                             panel.revalidate();
                             panel.repaint();
+                            scrollarPraBaixo(panel);
                         }
 
-                        System.out.println(msg);
+                        
                     }
                     sleep(300);    //pra nao ficar lendo toda hora e ocupando a cpu
 
@@ -593,6 +618,18 @@ public class InterfaceChatSwing {
 
         public void desligar(){
             ativo=false;
+        }
+
+        public void scrollarPraBaixo(JPanel panel){
+            final JPanel painelFinal = panel; 
+        
+            SwingUtilities.invokeLater(() -> {
+                JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, painelFinal);
+                if (scroll != null) {
+                    JScrollBar barraVertical = scroll.getVerticalScrollBar();
+                    barraVertical.setValue(barraVertical.getMaximum());
+                }
+            });
         }
     }
 }

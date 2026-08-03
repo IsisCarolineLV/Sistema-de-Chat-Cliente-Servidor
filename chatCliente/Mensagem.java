@@ -9,11 +9,20 @@ public class Mensagem {
     public Mensagem (String mensagem){
         String[] termos = mensagem.split("\\|");
         if(termos.length==1){
+            conteudo = mensagem;
             tipo = mensagem;
-            System.out.println ("COMANDO DE UMA LINHA:"+mensagem);
+            remetente="";
+            destinatario="";
+            //System.out.println("COMANDO DE UMA LINHA:"+mensagem);
+        }else if(termos.length==2){
+            tipo = "MENSAGEM SERVIDOR";
+            remetente = termos[0];
+            destinatario = "";
+            conteudo = termos[1];
         }else if (termos.length==3){
             tipo = termos[0];
             remetente = termos[1];
+            destinatario = "";
             conteudo = termos[2];
         }else{
             tipo = termos[0];
