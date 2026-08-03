@@ -22,6 +22,11 @@ public class InterfaceChatSwing {
     private static ArrayList<String> botoesLaterais = new ArrayList<>();
     private static java.util.List<JPanel> todosPaineisLaterais = new java.util.ArrayList<>();
     private static Map<String, JButton> botaoEnviarDeCadaChat = new HashMap<>();
+    
+    private static String chatAtivo = "Chat Geral";
+    private static Map<String, java.util.List<JButton>> botoesDaBarraLateral = new HashMap<>();
+    private static Map<String, Integer> mensagensNaoLidas = new HashMap<>();
+
     private static Map<String,JPanel> PanelsMensagemTelas = new HashMap<>();
     private static CardLayout cardLayout=null;
     private static JPanel painelGerenciador=null;
@@ -205,7 +210,9 @@ public class InterfaceChatSwing {
                 janela.requestFocusInWindow(); 
             }else {
                 try {
-                    //socket = new Socket(ipServidor, portaServer); //mudado aq tbm
+                    if (socket == null || socket.isClosed()) {
+                        socket = new Socket(ipServidor, portaServer);
+                    }
 
                     inputLeitor = new InputStreamReader(socket.getInputStream());
                     outputEscritor = new OutputStreamWriter(socket.getOutputStream());
@@ -345,11 +352,18 @@ public class InterfaceChatSwing {
         } else{
             btnChatLateral.setBackground(Color.decode("#458c98"));
         }
+        
+        botoesDaBarraLateral.putIfAbsent("Chat Geral", new ArrayList<>());
+        botoesDaBarraLateral.get("Chat Geral").add(btnChatLateral);
+
         btnChatLateral.addActionListener(e ->{
             cardLayout.show(painelGerenciador, "Chat Geral");
-            janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get("Chat Geral"));
+            janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get("Chat Geral")); // Arruma o Enter
+            
+            limparNotificacao("Chat Geral");
         });
-        //Demais botoes pros chats privados
+        
+        //Demais botoes pros chats privados antigos
         JPanel painelLateral = new JPanel();
         painelLateral.setOpaque(false);
         painelLateral.setLayout(new BoxLayout(painelLateral, BoxLayout.Y_AXIS));
@@ -364,9 +378,20 @@ public class InterfaceChatSwing {
             btnAntigo.setFont(new Font("SansSerif", Font.PLAIN, 20));
             btnAntigo.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
+            botoesDaBarraLateral.putIfAbsent(nomeAntigo, new ArrayList<>());
+            botoesDaBarraLateral.get(nomeAntigo).add(btnAntigo);
+            
+            // Restaura o visual da notificação se a tela for recriada
+            int unread = mensagensNaoLidas.getOrDefault(nomeAntigo, 0);
+            if(unread > 0 && !chatAtivo.equals(nomeAntigo)) {
+                btnAntigo.setText(nomeAntigo + " (" + unread + ")");
+            }
+            
             btnAntigo.addActionListener(e -> {
                 cardLayout.show(painelGerenciador, nomeAntigo);
-                janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(nomeAntigo));
+                janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(nomeAntigo)); // Arruma o Enter
+                
+                limparNotificacao(nomeAntigo);
             });
 
             painelLateral.add(btnAntigo);
@@ -446,7 +471,7 @@ public class InterfaceChatSwing {
     // Novo método para adicionar botões de chat privado
     public static void adicionarNovoChatNaLateral(String tituloChat) {
         // Para cada painel lateral existente no nosso jogo, criamos um botão novo!
-        JButton btnNovo = null;
+        JButton btnNovo=null;
         for (JPanel painel : todosPaineisLaterais) {
             btnNovo = new JButton(tituloChat);
             btnNovo.setPreferredSize(new Dimension(141, 45));
@@ -458,21 +483,24 @@ public class InterfaceChatSwing {
             btnNovo.setFont(new Font("SansSerif", Font.PLAIN, 20));
             btnNovo.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
-            btnNovo.addActionListener(e -> {
+            botoesDaBarraLateral.putIfAbsent(tituloChat, new ArrayList<>());
+            botoesDaBarraLateral.get(tituloChat).add(btnNovo);
+
+            btnNovo.addActionListener(e -> { 
                 cardLayout.show(painelGerenciador, tituloChat);
-                janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(tituloChat));
+                janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(tituloChat)); // Arruma o Enter
+                
+                limparNotificacao(tituloChat);
             });
             
             painel.add(btnNovo);
-            painel.add(Box.createRigidArea(new Dimension(0, 10))); // Espaçamento
+            painel.add(Box.createRigidArea(new Dimension(0, 10))); 
             
-            // Avisa o painel que ele precisa atualizar o visual porque ganhou um botão
             painel.revalidate();
             painel.repaint();
-            
         }
         botoesLaterais.add(tituloChat);
-        btnNovo.setBackground(Color.decode("#b2bdff"));
+        if(btnNovo != null) btnNovo.setBackground(Color.decode("#b2bdff"));
     }
 
     private static void scrollarPraBaixo(JPanel panel){
@@ -484,7 +512,6 @@ public class InterfaceChatSwing {
             painelFinal.repaint();
             
             // 2. Coloca a rolagem no FINAL da fila de tarefas do Swing
-            // Isso garante que a tela já cresceu quando esse bloco for executado
             SwingUtilities.invokeLater(() -> {
                 JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, painelFinal);
                 if (scroll != null) {
@@ -496,7 +523,7 @@ public class InterfaceChatSwing {
     }
 
     private static String gerarNickAleatorio() {
-        // Encontros vocálicos e vogais simples
+        // Encontros vocalicos e vogais simples
         String[] vogais = {"a", "e", "i", "o", "u", "ia", "ou", "io", "ei", "au"};
         
         // Consoantes simples e encontros consonantais muito comuns em PT/EN
@@ -509,7 +536,7 @@ public class InterfaceChatSwing {
         
         java.util.Random random = new java.util.Random();
         
-        // Define que o nome terá entre 3 e 5 "partes" (ex: C-V-C-V)
+        // Define que o nome tera entre 3 e 5 "partes" (ex: C-V-C-V)
         int numPartes = random.nextInt(3) + 3; 
         StringBuilder nick = new StringBuilder();
         
@@ -522,19 +549,32 @@ public class InterfaceChatSwing {
             } else {
                 nick.append(consoantes[random.nextInt(consoantes.length)]);
             }
-            // Alterna para o próximo pedaço! Se foi vogal, agora é consoante, e vice-versa.
+            // Alterna para o proximo pedaço! Se foi vogal, agora eh consoante, e vice-versa.
             usarVogal = !usarVogal; 
         }
         
-        // (Opcional) Adiciona um número aleatório no final (ex: 99) para dar uma vibe "gamer"
+        // (Opcional) Adiciona um numero aleatório no final
         if (random.nextBoolean()) {
             nick.append(random.nextInt(100));
         }
         
-        // Coloca a primeira letra em maiúsculo para ficar bonito na tela
+        // Coloca a primeira letra em maiusculo para ficar bonito na tela
         String resultado = nick.toString();
         return resultado.substring(0, 1).toUpperCase() + resultado.substring(1);
     }
+
+    private static void limparNotificacao(String nomeChat) {
+        chatAtivo = nomeChat;
+        mensagensNaoLidas.put(nomeChat, 0);
+        
+        java.util.List<JButton> botoes = botoesDaBarraLateral.get(nomeChat);
+        if (botoes != null) {
+            for (JButton b : botoes) {
+                b.setText(nomeChat); // Remove o "(1)" de todas as telas
+            }
+        }
+    }
+    
 
     //Thread pra ficar recebendo as mensagens
     private static class LeitorMensagensRecebidas extends Thread{
@@ -574,6 +614,7 @@ public class InterfaceChatSwing {
                                         MensagemPanel novaMensagemPanel = new MensagemPanel(novaMensagem.getConteudo());
                                         panel.add(novaMensagemPanel);
                                         scrollarPraBaixo(panel);
+                                        atualizarNotificacao(novaMensagem.getRemetente());
                                     }else{
                                         MensagemPanel novaMensagemPanel = new MensagemPanel(novaMensagem.getConteudo(), true);
                                         semaforoMapPanels.acquire();
@@ -581,6 +622,7 @@ public class InterfaceChatSwing {
                                         semaforoMapPanels.release();
                                         panel.add(novaMensagemPanel);
                                         scrollarPraBaixo(panel);
+                                        atualizarNotificacao("Chat Geral");
                                     }
                                 }
                                 else if(novaMensagem.getTipo().equals("CHAT GERAL")){
@@ -590,6 +632,8 @@ public class InterfaceChatSwing {
                                     semaforoMapPanels.release();
                                     panel.add(novaMensagemPanel);
                                     scrollarPraBaixo(panel);
+                                    atualizarNotificacao("Chat Geral");
+                                    
                                 }
                                 else if(novaMensagem.getTipo().equals("PRIVADA")){
 
@@ -597,7 +641,7 @@ public class InterfaceChatSwing {
                                     JPanel panel = PanelsMensagemTelas.get(novaMensagem.getRemetente());
                                     semaforoMapPanels.release();
                                     if(panel==null){
-                                        System.out.println("É null coitado");
+                                        //System.out.println("É null coitado");
                                         PainelComFundo novaTela = criarTelaChat("imagens/TelaChat.png", novaMensagem.getRemetente());
                                         painelGerenciador.add(novaTela, novaMensagem.getRemetente());
                                         //cardLayout.show(painelGerenciador, novaMensagem.getConteudo());
@@ -609,6 +653,7 @@ public class InterfaceChatSwing {
                                     MensagemPanel novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
                                     panel.add(novaMensagemPanel);
                                     scrollarPraBaixo(panel);
+                                    atualizarNotificacao(novaMensagem.getDestino());
                                 }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -631,24 +676,40 @@ public class InterfaceChatSwing {
         }
 
         private static void scrollarPraBaixo(JPanel panel){
-        final JPanel painelFinal = panel; 
-    
-        SwingUtilities.invokeLater(() -> {
-            // 1. Pede para o Java recalcular o tamanho da tela
-            painelFinal.revalidate();
-            painelFinal.repaint();
-            
-            // 2. Coloca a rolagem no FINAL da fila de tarefas do Swing
-            // Isso garante que a tela já cresceu quando esse bloco for executado
+            final JPanel painelFinal = panel; 
+        
             SwingUtilities.invokeLater(() -> {
-                JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, painelFinal);
-                if (scroll != null) {
-                    JScrollBar barraVertical = scroll.getVerticalScrollBar();
-                    barraVertical.setValue(barraVertical.getMaximum());
-                }
+                // 1. Pede para o Java recalcular o tamanho da tela
+                painelFinal.revalidate();
+                painelFinal.repaint();
+                
+                // 2. Coloca a rolagem no FINAL da fila de tarefas do Swing
+                SwingUtilities.invokeLater(() -> {
+                    JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, painelFinal);
+                    if (scroll != null) {
+                        JScrollBar barraVertical = scroll.getVerticalScrollBar();
+                        barraVertical.setValue(barraVertical.getMaximum());
+                    }
+                });
             });
-        });
+        }
+
+        private void atualizarNotificacao(String nomeChat) {
+        if (!chatAtivo.equals(nomeChat)) {
+            int contagem = mensagensNaoLidas.getOrDefault(nomeChat, 0) + 1;
+            mensagensNaoLidas.put(nomeChat, contagem);
+            
+            // MUDOU AQUI: Puxa a lista e atualiza todos
+            java.util.List<JButton> botoes = botoesDaBarraLateral.get(nomeChat);
+            if (botoes != null) {
+                for (JButton btn : botoes) {
+                    btn.setText(nomeChat + " (" + contagem + ")");
+                }
+            }
+        }
     }
+
+        
     }
 }
 
