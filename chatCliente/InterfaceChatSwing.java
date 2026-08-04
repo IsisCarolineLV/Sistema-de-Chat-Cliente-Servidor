@@ -440,6 +440,7 @@ public class InterfaceChatSwing {
                         }else if(mensagem.equalsIgnoreCase("/sair")){
                             bufferWriter.write("SAIR");
                             leitorDeMensagem.desligar();
+                            resetarChats();
                             cardLayout.show(painelGerenciador, "TELA_CONEXAO");
                         }else if(mensagem.charAt(0)=='@'){
                             bufferWriter.write("PRIVADA|"+meuNome+"|"+ mensagem.trim().split(" ")[0].substring(1) +"|"+mensagem); //tripla
@@ -611,6 +612,37 @@ public class InterfaceChatSwing {
                 panel.repaint();
             }
         }
+    }
+
+    private static void resetarChats() {
+        // 1. Esvazia a tela de mensagens do Chat Geral
+        JPanel painelGeral = PanelsMensagemTelas.get("Chat Geral");
+        if (painelGeral != null) {
+            painelGeral.removeAll();
+            painelGeral.revalidate();
+            painelGeral.repaint();
+        }
+
+        // 2. Destrói os botões de conversas privadas de todas as barras laterais
+        for (JPanel painelLateral : todosPaineisLaterais) {
+            painelLateral.removeAll();
+            painelLateral.revalidate();
+            painelLateral.repaint();
+        }
+
+        // 3. Limpa todas as referências da memória (preservando apenas o Chat Geral)
+        botoesLaterais.clear();
+        PanelsMensagemTelas.keySet().removeIf(k -> !k.equals("Chat Geral"));
+        botaoEnviarDeCadaChat.keySet().removeIf(k -> !k.equals("Chat Geral"));
+        botoesDaBarraLateral.keySet().removeIf(k -> !k.equals("Chat Geral"));
+        mensagensNaoLidas.keySet().removeIf(k -> !k.equals("Chat Geral"));
+        
+        // Se você criou o mapa de divisores do WhatsApp, limpe ele também:
+        if (divisoresChat != null) {
+            divisoresChat.keySet().removeIf(k -> !k.equals("Chat Geral"));
+        }
+        
+        chatAtivo = "Chat Geral";
     }
     
 
