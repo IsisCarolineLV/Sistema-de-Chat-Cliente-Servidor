@@ -345,7 +345,7 @@ public class InterfaceChatSwing {
         //Botao do Chat Geral
         JButton btnChatLateral = new JButton("Chat Geral");
         btnChatLateral.setBounds(14, 48, 141, 45); 
-        btnChatLateral.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        btnChatLateral.setFont(new Font("SansSerif", Font.PLAIN, 16));
         btnChatLateral.setFocusPainted(false);
         if(titulo.equals("Chat Geral")){
             btnChatLateral.setBackground(Color.decode("#b2bdff"));
@@ -375,7 +375,7 @@ public class InterfaceChatSwing {
             btnAntigo.setBackground(Color.decode("#458c98"));
             btnAntigo.setOpaque(true);
             btnAntigo.setFocusPainted(false);
-            btnAntigo.setFont(new Font("SansSerif", Font.PLAIN, 20));
+            btnAntigo.setFont(new Font("SansSerif", Font.PLAIN, 17));
             btnAntigo.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
             botoesDaBarraLateral.putIfAbsent(nomeAntigo, new ArrayList<>());
@@ -480,7 +480,7 @@ public class InterfaceChatSwing {
             btnNovo.setBackground(Color.decode("#458c98"));
             btnNovo.setOpaque(true);
             btnNovo.setFocusPainted(false);
-            btnNovo.setFont(new Font("SansSerif", Font.PLAIN, 20));
+            btnNovo.setFont(new Font("SansSerif", Font.PLAIN, 17));
             btnNovo.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
             botoesDaBarraLateral.putIfAbsent(tituloChat, new ArrayList<>());
@@ -653,7 +653,7 @@ public class InterfaceChatSwing {
                                     MensagemPanel novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
                                     panel.add(novaMensagemPanel);
                                     scrollarPraBaixo(panel);
-                                    atualizarNotificacao(novaMensagem.getDestino());
+                                    atualizarNotificacao(novaMensagem.getRemetente());
                                 }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
