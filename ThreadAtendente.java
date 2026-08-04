@@ -34,9 +34,10 @@ public class ThreadAtendente extends Thread{
             bufferWriter = new BufferedWriter(outputEscritor);
 
             broadcast(nomeDoAtendido + " entrou do chat");
-            bufferWriter.write("Servidor|"+nomeDoAtendido + ", seja bem-vindo ao chat geral!");
+            bufferWriter.write("Servidor|"+nomeDoAtendido + ", seja bem-vindo(a) ao chat geral!");
             bufferWriter.newLine();
             bufferWriter.flush();
+            mandaAjuda(bufferWriter);
 
             while(true){
                 String mensagemDoCliente = bufferReader.readLine();
@@ -91,18 +92,7 @@ public class ThreadAtendente extends Thread{
 
                     continue;
                 }else if(mensagem.getTipo().equals("AJUDA")){
-                    bufferWriter.write("Servidor|/ajuda: exibe comandos");
-                    bufferWriter.newLine();
-                    bufferWriter.flush();
-                    bufferWriter.write("Servidor|/listar: exibe uma lista de todos os usuarios online");
-                    bufferWriter.newLine();
-                    bufferWriter.flush();
-                    bufferWriter.write("Servidor|@nomeUsuario: inicia um chat privado com o usuario");
-                    bufferWriter.newLine();
-                    bufferWriter.flush();
-                    bufferWriter.write("Servidor|/sair: fecha a conexão com os servidor");
-                    bufferWriter.newLine();
-                    bufferWriter.flush();
+                    mandaAjuda(bufferWriter);
                     continue;
                 }else  if(mensagem.getTipo().equals("CHAT GERAL")){
                     //manda pra todo mundo no chat geral
@@ -204,6 +194,21 @@ public class ThreadAtendente extends Thread{
         }
         semaforoTabela.release();
 
+    }
+
+    public void mandaAjuda(BufferedWriter bufferedWriter) throws IOException{
+        bufferWriter.write("Servidor|/ajuda: exibe comandos");
+        bufferWriter.newLine();
+        bufferWriter.flush();
+        bufferWriter.write("Servidor|/listar: exibe uma lista de todos os usuarios online");
+        bufferWriter.newLine();
+        bufferWriter.flush();
+        bufferWriter.write("Servidor|@nomeUsuario: inicia um chat privado com o usuario");
+        bufferWriter.newLine();
+        bufferWriter.flush();
+        bufferWriter.write("Servidor|/sair: fecha a conexão com os servidor");
+        bufferWriter.newLine();
+        bufferWriter.flush();
     }
     
 }
