@@ -644,6 +644,7 @@ public class InterfaceChatSwing {
                                             PainelComFundo novaTela = criarTelaChat("imagens/TelaChat.png", novaMensagem.getDestino());
                                             painelGerenciador.add(novaTela, novaMensagem.getDestino());
                                             cardLayout.show(painelGerenciador, novaMensagem.getDestino());
+                                            janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(novaMensagem.getDestino()));
                                             semaforoMapPanels.acquire();
                                             panel = PanelsMensagemTelas.get(novaMensagem.getDestino());
                                             semaforoMapPanels.release();
