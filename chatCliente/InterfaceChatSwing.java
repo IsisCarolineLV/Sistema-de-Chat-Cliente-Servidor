@@ -26,6 +26,7 @@ public class InterfaceChatSwing {
     private static String chatAtivo = "Chat Geral";
     private static Map<String, java.util.List<JButton>> botoesDaBarraLateral = new HashMap<>();
     private static Map<String, Integer> mensagensNaoLidas = new HashMap<>();
+    private static Map<String, MensagemPanel> divisoresChat = new HashMap<>();
 
     private static Map<String,JPanel> PanelsMensagemTelas = new HashMap<>();
     private static CardLayout cardLayout=null;
@@ -357,6 +358,7 @@ public class InterfaceChatSwing {
         botoesDaBarraLateral.get("Chat Geral").add(btnChatLateral);
 
         btnChatLateral.addActionListener(e ->{
+            removerDivisor(chatAtivo);
             cardLayout.show(painelGerenciador, "Chat Geral");
             janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get("Chat Geral")); // Arruma o Enter
             
@@ -388,6 +390,7 @@ public class InterfaceChatSwing {
             }
             
             btnAntigo.addActionListener(e -> {
+                removerDivisor(chatAtivo);
                 cardLayout.show(painelGerenciador, nomeAntigo);
                 janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(nomeAntigo)); // Arruma o Enter
                 
@@ -487,6 +490,7 @@ public class InterfaceChatSwing {
             botoesDaBarraLateral.get(tituloChat).add(btnNovo);
 
             btnNovo.addActionListener(e -> { 
+                removerDivisor(chatAtivo);
                 cardLayout.show(painelGerenciador, tituloChat);
                 janela.getRootPane().setDefaultButton(botaoEnviarDeCadaChat.get(tituloChat)); // Arruma o Enter
                 
@@ -574,6 +578,40 @@ public class InterfaceChatSwing {
             }
         }
     }
+
+    private static void injetarDivisorSeNecessario(String nomeChat, JPanel panel) {
+        if (!chatAtivo.equals(nomeChat)) {
+            int unread = mensagensNaoLidas.getOrDefault(nomeChat, 0);
+            if (unread == 0) {
+                // Se é a primeira mensagem, cria o balão de sistema
+                MensagemPanel divisor = new MensagemPanel("1 mensagem não lida", true);
+                divisoresChat.put(nomeChat, divisor);
+                panel.add(divisor);
+            } else {
+                // Se já existe, pega o balão e só atualiza o texto (sem criar outro)
+                MensagemPanel divisor = divisoresChat.get(nomeChat);
+                if (divisor != null && divisor.getComponentCount() > 0) {
+                    try {
+                        // O JTextPane é o primeiro componente do painel de sistema
+                        JTextPane txt = (JTextPane) divisor.getComponent(0);
+                        txt.setText((unread + 1) + " mensagens não lidas");
+                    } catch (Exception e) {}
+                }
+            }
+        }
+    }
+
+    private static void removerDivisor(String nomeChat) {
+        MensagemPanel divisor = divisoresChat.remove(nomeChat);
+        if (divisor != null) {
+            JPanel panel = PanelsMensagemTelas.get(nomeChat);
+            if (panel != null) {
+                panel.remove(divisor);
+                panel.revalidate();
+                panel.repaint();
+            }
+        }
+    }
     
 
     //Thread pra ficar recebendo as mensagens
@@ -612,6 +650,7 @@ public class InterfaceChatSwing {
                                         }
 
                                         MensagemPanel novaMensagemPanel = new MensagemPanel(novaMensagem.getConteudo());
+                                        //injetarDivisorSeNecessario(novaMensagem.getRemetente(), panel);
                                         panel.add(novaMensagemPanel);
                                         scrollarPraBaixo(panel);
                                         atualizarNotificacao(novaMensagem.getRemetente());
@@ -630,6 +669,7 @@ public class InterfaceChatSwing {
                                     semaforoMapPanels.acquire();
                                     JPanel panel = PanelsMensagemTelas.get("Chat Geral");
                                     semaforoMapPanels.release();
+                                    injetarDivisorSeNecessario("Chat Geral", panel);
                                     panel.add(novaMensagemPanel);
                                     scrollarPraBaixo(panel);
                                     atualizarNotificacao("Chat Geral");
@@ -651,6 +691,7 @@ public class InterfaceChatSwing {
                                     }
 
                                     MensagemPanel novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
+                                    injetarDivisorSeNecessario(novaMensagem.getRemetente(), panel);
                                     panel.add(novaMensagemPanel);
                                     scrollarPraBaixo(panel);
                                     atualizarNotificacao(novaMensagem.getRemetente());
