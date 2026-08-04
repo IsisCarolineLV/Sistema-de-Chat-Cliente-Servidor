@@ -53,24 +53,6 @@ public class ThreadAtendente extends Thread{
                     break;
                 }
 
-                /*if(mensagemDoCliente.equals("LISTAR_USUARIOS")){
-                    StringBuilder lista = new StringBuilder("Usuarios conectados: ");
-                    semaforoTabela.acquire();
-                    for(String nomeConectado : Servidor.socketCliente.keySet()){
-                        lista.append(nomeConectado).append(", ");//coloca os clientes conecotados na lista 
-                    }
-                    semaforoTabela.release();
-
-                    if(lista.length()>21){
-                        lista.setLength(lista.length() - 2);//tira a virgula 
-                    }
-                    bufferWriter.write(lista.toString());
-                    bufferWriter.newLine();
-                    bufferWriter.flush();
-
-                    continue;
-                }*/
-
                 Mensagem mensagem = new Mensagem(mensagemDoCliente);    //mudei a estrutura
                                                                         // tipo | remetende | destino | mensagem
 
@@ -119,12 +101,6 @@ public class ThreadAtendente extends Thread{
                     }
                         
                 }
-
-                /*System.out.println(nomeDoAtendido +": "+ mensagem.getConteudo());
-
-                bufferWriter.write("Mensagem recebida");
-                bufferWriter.newLine();
-                bufferWriter.flush();*/
                 
             }
 
