@@ -1,9 +1,0 @@
-CHAT GERAL|isis|oi
-CHAT GERAL|isis|tudo bom?
-PRIVADA|Servidor|levi|@levi
-PRIVADA|Servidor|levi|oi
-PRIVADA|levi|isis|salve
-PRIVADA|levi|isis|como tamo?
-PRIVADA|Servidor|levi|bem
-CHAT GERAL|isis|oi
-PRIVADA|Servidor|levi|oi
