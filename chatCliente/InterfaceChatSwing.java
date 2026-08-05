@@ -671,6 +671,7 @@ public class InterfaceChatSwing {
     private static class LeitorMensagensRecebidas extends Thread{
         private BufferedReader bufferReader = null;
         private boolean ativo = true;
+        private boolean carregandoHistorico = true;
 
         public LeitorMensagensRecebidas (BufferedReader bf){
             this.setDaemon(true);
@@ -682,9 +683,13 @@ public class InterfaceChatSwing {
                     String msg = bufferReader.readLine();
 
                     if(msg != null){
+                        if (msg.equals("Servidor|FIM_HISTORICO")) {
+                            carregandoHistorico = false; // Destrava as notificações!
+                            continue; // Pula essa volta do laço para não imprimir isso na tela
+                        }
+
                         final Mensagem novaMensagem = new Mensagem(msg);
-                        //if(novaMensagem.getRemetente().equals(meuNome)) continue;
-                        
+                                                
                         SwingUtilities.invokeLater(() -> {
                             try {
                                 if(novaMensagem.getRemetente().equals("Servidor")) {
@@ -707,7 +712,7 @@ public class InterfaceChatSwing {
                                         //injetarDivisorSeNecessario(novaMensagem.getRemetente(), panel);
                                         panel.add(novaMensagemPanel);
                                         scrollarPraBaixo(panel);
-                                        atualizarNotificacao(novaMensagem.getRemetente());
+                                         if (!carregandoHistorico) atualizarNotificacao(novaMensagem.getRemetente());
                                     }else{
                                         MensagemPanel novaMensagemPanel = new MensagemPanel(novaMensagem.getConteudo(), true);
                                         semaforoMapPanels.acquire();
@@ -715,7 +720,7 @@ public class InterfaceChatSwing {
                                         semaforoMapPanels.release();
                                         panel.add(novaMensagemPanel);
                                         scrollarPraBaixo(panel);
-                                        atualizarNotificacao("Chat Geral");
+                                         if (!carregandoHistorico)  atualizarNotificacao("Chat Geral");
                                     }
                                 }
                                 else if(novaMensagem.getTipo().equals("CHAT GERAL")){
@@ -728,10 +733,10 @@ public class InterfaceChatSwing {
                                     semaforoMapPanels.acquire();
                                     JPanel panel = PanelsMensagemTelas.get("Chat Geral");
                                     semaforoMapPanels.release();
-                                    injetarDivisorSeNecessario("Chat Geral", panel);
+                                    if (!carregandoHistorico) injetarDivisorSeNecessario("Chat Geral", panel);
                                     panel.add(novaMensagemPanel);
                                     scrollarPraBaixo(panel);
-                                    atualizarNotificacao("Chat Geral");
+                                    if (!carregandoHistorico) atualizarNotificacao("Chat Geral");
                                     
                                 }
                                 else if(novaMensagem.getTipo().equals("PRIVADA")){
@@ -750,19 +755,22 @@ public class InterfaceChatSwing {
                                     }
 
                                     MensagemPanel novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
-                                    injetarDivisorSeNecessario(novaMensagem.getRemetente(), panel);
+                                    if (!carregandoHistorico) injetarDivisorSeNecessario(novaMensagem.getRemetente(), panel);
                                     panel.add(novaMensagemPanel);
                                     scrollarPraBaixo(panel);
-                                    atualizarNotificacao(novaMensagem.getRemetente());
+                                    if (!carregandoHistorico) atualizarNotificacao(novaMensagem.getRemetente());
                                 }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         });
-                        if(!novaMensagem.getRemetente().equals(meuNome))
-                        sleep(100);    //pra nao ficar lendo toda hora e ocupando a cpu
+                        if(!novaMensagem.getRemetente().equals(meuNome)&&!carregandoHistorico){
+                            sleep(100);    //pra nao ficar lendo toda hora e ocupando a cpu
+                        }
+                        
                     }
-                    sleep(100);
+                    if(!carregandoHistorico)
+                        sleep(100);
                 }catch(Exception e){
                     e.printStackTrace();
                     desligar();

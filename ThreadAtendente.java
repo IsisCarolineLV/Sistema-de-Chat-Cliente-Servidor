@@ -41,7 +41,7 @@ public class ThreadAtendente extends Thread{
             mandaAjuda(bufferWriter);
 
             //reconstituindo mensagens armazenadas
-            java.io.File arquivoHistorico = new java.io.File(nomeDoAtendido + ".txt");
+            java.io.File arquivoHistorico = new java.io.File("arquivos/"+nomeDoAtendido + ".txt");
             if(arquivoHistorico.exists()) {
                 java.io.BufferedReader leitorArquivo = new java.io.BufferedReader(new java.io.FileReader(arquivoHistorico));
                 String linhaAntiga;
@@ -52,6 +52,10 @@ public class ThreadAtendente extends Thread{
                 bufferWriter.flush();
                 leitorArquivo.close();
             }
+
+            bufferWriter.write("Servidor|FIM_HISTORICO");
+            bufferWriter.newLine();
+            bufferWriter.flush();
 
             while(true){
                 String mensagemDoCliente = bufferReader.readLine();
@@ -197,13 +201,10 @@ public class ThreadAtendente extends Thread{
     public void mandaAjuda(BufferedWriter bufferedWriter) throws IOException{
         bufferWriter.write("Servidor|/ajuda: exibe comandos");
         bufferWriter.newLine();
-        bufferWriter.flush();
         bufferWriter.write("Servidor|/listar: exibe uma lista de todos os usuarios online");
         bufferWriter.newLine();
-        bufferWriter.flush();
         bufferWriter.write("Servidor|@nomeUsuario: inicia um chat privado com o usuario");
         bufferWriter.newLine();
-        bufferWriter.flush();
         bufferWriter.write("Servidor|/sair: fecha a conexão com os servidor");
         bufferWriter.newLine();
         bufferWriter.flush();
@@ -212,13 +213,14 @@ public class ThreadAtendente extends Thread{
     // Método para salvar as mensagens no arquivo de texto do usuário
     public void salvarNoHistorico(String nomeDonoDoArquivo, String linha) {
         // O 'true' garante que ele vai adicionar no final do arquivo (append)
-        try (java.io.FileWriter fw = new java.io.FileWriter(nomeDonoDoArquivo + ".txt", true);
+        try (java.io.FileWriter fw = new java.io.FileWriter("arquivos/"+nomeDonoDoArquivo + ".txt", true);
              java.io.BufferedWriter bw = new java.io.BufferedWriter(fw)) {
             bw.write(linha);
             bw.newLine();
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
+        
     }
     
 }
