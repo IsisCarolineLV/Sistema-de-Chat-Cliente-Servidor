@@ -40,6 +40,19 @@ public class ThreadAtendente extends Thread{
             bufferWriter.flush();
             mandaAjuda(bufferWriter);
 
+            //reconstituindo mensagens armazenadas
+            java.io.File arquivoHistorico = new java.io.File(nomeDoAtendido + ".txt");
+            if(arquivoHistorico.exists()) {
+                java.io.BufferedReader leitorArquivo = new java.io.BufferedReader(new java.io.FileReader(arquivoHistorico));
+                String linhaAntiga;
+                while((linhaAntiga = leitorArquivo.readLine()) != null) {
+                    bufferWriter.write(linhaAntiga);
+                    bufferWriter.newLine();
+                }
+                bufferWriter.flush();
+                leitorArquivo.close();
+            }
+
             while(true){
                 String mensagemDoCliente = bufferReader.readLine();
 
@@ -90,15 +103,21 @@ public class ThreadAtendente extends Thread{
                         bufferWriter.write("PRIVADA|Servidor|Usuario não encontrado");
                         bufferWriter.newLine();
                         bufferWriter.flush();
+                        
                     }else{
                         OutputStreamWriter outputEscritorDestino = new OutputStreamWriter(socketDestino.getOutputStream());
                         BufferedWriter bufferWriterDestino =new BufferedWriter(outputEscritorDestino);
-                        bufferWriter.write("PRIVADA|Servidor|"+mensagem.getDestino()+"|"+ mensagem.getConteudo());
+                        String msgProRemetente = "PRIVADA|Servidor|"+mensagem.getDestino()+"|"+ mensagem.getConteudo();
+                        bufferWriter.write(msgProRemetente);
                         bufferWriter.newLine();
                         bufferWriter.flush();
-                        bufferWriterDestino.write("PRIVADA|"+nomeDoAtendido +"|"+mensagem.getDestino()+"|"+ mensagem.getConteudo());
+                        salvarNoHistorico(nomeDoAtendido, msgProRemetente);
+
+                        String msgProDestino = "PRIVADA|"+nomeDoAtendido +"|"+mensagem.getDestino()+"|"+ mensagem.getConteudo();
+                        bufferWriterDestino.write(msgProDestino);
                         bufferWriterDestino.newLine();
                         bufferWriterDestino.flush();
+                        salvarNoHistorico(mensagem.getDestino(), msgProDestino);
                     }
                         
                 }
@@ -152,6 +171,8 @@ public class ThreadAtendente extends Thread{
             bufferWriterC.newLine();
             bufferWriterC.flush();
 
+            salvarNoHistorico(c.getKey(), "CHAT GERAL|"+autor +"|"+ mensagem);
+
         }
         semaforoTabela.release();
 
@@ -186,6 +207,18 @@ public class ThreadAtendente extends Thread{
         bufferWriter.write("Servidor|/sair: fecha a conexão com os servidor");
         bufferWriter.newLine();
         bufferWriter.flush();
+    }
+
+    // Método para salvar as mensagens no arquivo de texto do usuário
+    public void salvarNoHistorico(String nomeDonoDoArquivo, String linha) {
+        // O 'true' garante que ele vai adicionar no final do arquivo (append)
+        try (java.io.FileWriter fw = new java.io.FileWriter(nomeDonoDoArquivo + ".txt", true);
+             java.io.BufferedWriter bw = new java.io.BufferedWriter(fw)) {
+            bw.write(linha);
+            bw.newLine();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
     }
     
 }

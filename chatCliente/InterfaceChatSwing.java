@@ -444,11 +444,11 @@ public class InterfaceChatSwing {
                 try {
 
                     if(titulo.equals("Chat Geral")){
-                        MensagemPanel novaMsg = new MensagemPanel(mensagem);
+                        /*MensagemPanel novaMsg = new MensagemPanel(mensagem);
                         SwingUtilities.invokeLater(() -> {
                             painelMensagens.add(novaMsg);
                         });
-                        scrollarPraBaixo(painelMensagens);
+                        scrollarPraBaixo(painelMensagens);*/
                         txtMensagem.setText("");
                         if(mensagem.equalsIgnoreCase("/listar")){
                             bufferWriter.write("LISTAR_USUARIOS");
@@ -683,7 +683,7 @@ public class InterfaceChatSwing {
 
                     if(msg != null){
                         final Mensagem novaMensagem = new Mensagem(msg);
-                        if(novaMensagem.getRemetente().equals(meuNome)) continue;
+                        //if(novaMensagem.getRemetente().equals(meuNome)) continue;
                         
                         SwingUtilities.invokeLater(() -> {
                             try {
@@ -719,7 +719,12 @@ public class InterfaceChatSwing {
                                     }
                                 }
                                 else if(novaMensagem.getTipo().equals("CHAT GERAL")){
-                                    MensagemPanel novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
+                                    MensagemPanel novaMensagemPanel=null;
+                                    if(novaMensagem.getRemetente().equals(meuNome)){
+                                        novaMensagemPanel = new MensagemPanel(novaMensagem.getConteudo());
+                                    }else{
+                                        novaMensagemPanel = new MensagemPanel( novaMensagem.getRemetente(), novaMensagem.getConteudo());
+                                    }
                                     semaforoMapPanels.acquire();
                                     JPanel panel = PanelsMensagemTelas.get("Chat Geral");
                                     semaforoMapPanels.release();
@@ -754,9 +759,10 @@ public class InterfaceChatSwing {
                                 e.printStackTrace();
                             }
                         });
+                        if(!novaMensagem.getRemetente().equals(meuNome))
+                        sleep(100);    //pra nao ficar lendo toda hora e ocupando a cpu
                     }
-                    sleep(300);    //pra nao ficar lendo toda hora e ocupando a cpu
-
+                    sleep(100);
                 }catch(Exception e){
                     e.printStackTrace();
                     desligar();
