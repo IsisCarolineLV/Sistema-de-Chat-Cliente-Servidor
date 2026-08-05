@@ -57,11 +57,11 @@ public class ThreadAtendente extends Thread{
                 }
                 bufferWriter.flush();
                 leitorArquivo.close();
+            }else{
+                bufferWriter.write("Servidor|FIM_HISTORICO");
+                bufferWriter.newLine();
+                bufferWriter.flush();
             }
-
-            bufferWriter.write("Servidor|FIM_HISTORICO");
-            bufferWriter.newLine();
-            bufferWriter.flush();
 
             while(true){
                 String mensagemDoCliente = bufferReader.readLine();
@@ -110,9 +110,21 @@ public class ThreadAtendente extends Thread{
                     Socket socketDestino = Servidor.socketCliente.get(mensagem.getDestino());
                     semaforoTabela.release();
                     if(socketDestino == null){
-                        bufferWriter.write("PRIVADA|Servidor|Usuario não encontrado");
-                        bufferWriter.newLine();
-                        bufferWriter.flush();
+                        java.io.File arquivoDestino = new java.io.File("arquivos/" + mensagem.getDestino() + ".txt");
+                        if(arquivoDestino.exists()) {
+                            String msgProDestino = "PRIVADA|"+nomeDoAtendido +"|"+mensagem.getDestino()+"|"+ mensagem.getConteudo();
+                            salvarNoHistorico(mensagem.getDestino(), msgProDestino);
+                            
+                            String msgProRemetente = "PRIVADA|Servidor|"+mensagem.getDestino()+"|"+ mensagem.getConteudo();
+                            bufferWriter.write(msgProRemetente);
+                            bufferWriter.newLine();
+                            bufferWriter.flush();
+                            salvarNoHistorico(nomeDoAtendido, msgProRemetente);
+                        }else{
+                            bufferWriter.write("PRIVADA|Servidor|Usuario não encontrado");
+                            bufferWriter.newLine();
+                            bufferWriter.flush();
+                        }
                         
                     }else{
                         OutputStreamWriter outputEscritorDestino = new OutputStreamWriter(socketDestino.getOutputStream());
@@ -145,6 +157,7 @@ public class ThreadAtendente extends Thread{
         }catch (InterruptedException e) {
             //e.printStackTrace();
         }finally {
+            salvarNoHistorico(nomeDoAtendido, "Servidor|FIM_HISTORICO");
             try {
                 if (nomeDoAtendido != null) {
                     semaforoTabela.acquire();
@@ -180,11 +193,21 @@ public class ThreadAtendente extends Thread{
             bufferWriterC.write("CHAT GERAL|"+autor +"|"+ mensagem);
             bufferWriterC.newLine();
             bufferWriterC.flush();
-
-            salvarNoHistorico(c.getKey(), "CHAT GERAL|"+autor +"|"+ mensagem);
-
         }
         semaforoTabela.release();
+
+        java.io.File diretorio = new java.io.File("arquivos");
+        if (diretorio.exists()) {
+            java.io.File[] arquivos = diretorio.listFiles();
+            if (arquivos != null) {
+                for (java.io.File arquivo : arquivos) {
+                    if (arquivo.getName().endsWith(".txt")) {
+                        String nomeDono = arquivo.getName().replace(".txt", "");
+                        salvarNoHistorico(nomeDono, "CHAT GERAL|"+autor +"|"+ mensagem);
+                    }
+                }
+            }
+        }
 
     }
 
