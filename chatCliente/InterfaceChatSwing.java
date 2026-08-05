@@ -798,6 +798,10 @@ public class InterfaceChatSwing {
                 try{
                     String msg = bufferReader.readLine();
 
+                    if (msg == null) {
+                        throw new IOException("Servidor desconectado");
+                    }
+
                     if(msg != null){
                         if (msg.equals("Servidor|FIM_HISTORICO")) {
                             carregandoHistorico = false; // Destrava as notificações!

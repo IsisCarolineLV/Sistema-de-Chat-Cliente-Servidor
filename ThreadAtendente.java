@@ -158,8 +158,8 @@ public class ThreadAtendente extends Thread{
             //e.printStackTrace();
         }finally {
             try {
+                salvarNoHistorico(nomeDoAtendido, "Servidor|FIM_HISTORICO");
                 if (nomeDoAtendido != null) {
-                    salvarNoHistorico(nomeDoAtendido, "Servidor|FIM_HISTORICO");
                     semaforoTabela.acquire();
                     Servidor.socketCliente.remove(nomeDoAtendido); // Remove o cliente que deu erro da tabela
                     semaforoTabela.release();
