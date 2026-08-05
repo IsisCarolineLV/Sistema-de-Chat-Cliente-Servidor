@@ -90,24 +90,24 @@ public class InterfaceChatSwing {
 
         // Texto exemplo IP
         JLabel lblPlaceholderIp = new JLabel("Ex: 10.0.0.0");
-        lblPlaceholderIp.setBounds(novaPosicao(151),novaPosicao( 224), 551, 49);
+        lblPlaceholderIp.setBounds(novaPosicao(151),novaPosicao( 224), novaPosicao(551),novaPosicao( 49));
         lblPlaceholderIp.setForeground(Color.decode("#88adb3"));
         lblPlaceholderIp.setFont(new Font("SansSerif", Font.PLAIN, 31));
         
         //Campo para Digitar o IP
         JTextField txtIp = new JTextField();
-        txtIp.setBounds(novaPosicao(151), novaPosicao(206), 532, 85);
+        txtIp.setBounds(novaPosicao(151), novaPosicao(206), novaPosicao(470), 85);
         configurarCampoInvisivel(txtIp, lblPlaceholderIp);
 
         // Texto exemplo porta
         JLabel lblPlaceholderPorta = new JLabel("Ex: 1234");
-        lblPlaceholderPorta.setBounds(novaPosicao(151), novaPosicao(391), 351, 49);
+        lblPlaceholderPorta.setBounds(novaPosicao(151), novaPosicao(391), novaPosicao(351), novaPosicao(49));
         lblPlaceholderPorta.setForeground(Color.decode("#88adb3"));
         lblPlaceholderPorta.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
         //Campo para Digitar a porta
         JTextField txtPorta = new JTextField();
-        txtPorta.setBounds(novaPosicao(151), novaPosicao(373), 423, 85);
+        txtPorta.setBounds(novaPosicao(151), novaPosicao(373), novaPosicao(400),novaPosicao( 85));
         configurarCampoInvisivel(txtPorta, lblPlaceholderPorta);
 
         // Botão Conectar
@@ -127,14 +127,15 @@ public class InterfaceChatSwing {
         telaMenu.setLayout(null); 
 
         //Placeholder indicando onde digitar
-        JLabel lblPlaceholderNome = new JLabel("Digite seu nome aqui...");
-        lblPlaceholderNome.setBounds(novaPosicao(225), novaPosicao(420), 351, 49);
+        JLabel lblPlaceholderNome = new JLabel("Digite seu nome");
+        lblPlaceholderNome.setBounds(novaPosicao(225), novaPosicao(420), novaPosicao(351), 49);
         lblPlaceholderNome.setForeground(Color.decode("#88adb3"));
         lblPlaceholderNome.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
         //Campo para Digitar o nome
         txtNome = new JTextField();
-        txtNome.setBounds(novaPosicao(225),novaPosicao(400), 481, 85);
+        txtNome.setBounds(novaPosicao(225),novaPosicao(400), novaPosicao(401), 85);
+        txtNome.setDocument(new LimitadorTexto(30));
         configurarCampoInvisivel(txtNome, lblPlaceholderNome);
 
         //Botao nomeAleatorio
@@ -143,14 +144,16 @@ public class InterfaceChatSwing {
         configurarBotaoInvisivel(btnAleatorio);
 
         // Texto exemplo senha
-        JLabel lblPlaceholderSenha = new JLabel("Digite sua senha aqui...");
-        lblPlaceholderSenha.setBounds(novaPosicao(225), novaPosicao(562), 351, 49);
+        JLabel lblPlaceholderSenha = new JLabel("Digite sua senha");
+        lblPlaceholderSenha.setBounds(novaPosicao(225), novaPosicao(562), novaPosicao(331), novaPosicao(49));
         lblPlaceholderSenha.setForeground(Color.decode("#88adb3"));
         lblPlaceholderSenha.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
         //Campo para Digitar a senha
         txtSenha = new JPasswordField();
-        txtSenha.setBounds(novaPosicao(225), novaPosicao(543), 481, 85);
+        txtSenha.setDocument(new LimitadorTexto(100));
+        txtSenha.setBounds(novaPosicao(225), novaPosicao(543), novaPosicao(401), novaPosicao(85));
+        
         configurarCampoInvisivel(txtSenha, lblPlaceholderSenha);
 
         //Botao entrar
@@ -454,6 +457,7 @@ public class InterfaceChatSwing {
         txtMensagem.setBounds(novaPosicao(219), novaPosicao(735), novaPosicao(471), novaPosicao(49));
         configurarCampoInvisivel(txtMensagem, lblPlaceholderMsg);
         txtMensagem.setFont(new Font("SansSerif", Font.PLAIN, 31)); // Reduzindo um pouco a fonte da msg
+        txtMensagem.setDocument(new LimitadorTexto(100));
 
         //Botao enviar
         JButton btnEnviar = new JButton();
@@ -964,4 +968,18 @@ class PainelComFundo extends JPanel {
             g.drawImage(imagemFundo, 0, 0, tamanho, tamanho, this);
         }
     }
+}
+
+class LimitadorTexto extends javax.swing.text.PlainDocument {
+    private int limite;
+    public LimitadorTexto(int limite) {
+        this.limite = limite;
+    }
+    @Override
+    public void insertString(int offset, String str, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+        if (str == null) return;
+        if ((getLength() + str.length()) <= limite) {
+        super.insertString(offset, str, attr);
+    }
+}
 }

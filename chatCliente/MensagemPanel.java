@@ -92,7 +92,8 @@ public class MensagemPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         
         // Espaçamento um pouco maior para isolar a mensagem no meio da tela
-        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15)); 
+        //if(mensagemSistema.length()<30)
+        //    setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15)); 
 
         JTextPane txtMensagem = new JTextPane();
         txtMensagem.setText(mensagemSistema);
@@ -113,7 +114,7 @@ public class MensagemPanel extends JPanel {
 
         add(txtMensagem);
 
-        setMaximumSize(new Dimension(580, Integer.MAX_VALUE));
+        setMaximumSize(new Dimension(780, Integer.MAX_VALUE));
         
         // Garante que o painel flutue no centro do ScrollPane
         setAlignmentX(Component.CENTER_ALIGNMENT); 

@@ -77,6 +77,11 @@ public class Servidor {
                     bufferWriter.newLine();
                     bufferWriter.flush();
                     return;
+                }else if(nomeDoCliente.length()>100){
+                    bufferWriter.write("Nome muito grande");
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+                    return;
                 }
 
                 boolean autenticado = false;
