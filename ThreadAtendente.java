@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -28,7 +29,7 @@ public class ThreadAtendente extends Thread{
         
         try{
             inputLeitor = new InputStreamReader(socket.getInputStream());
-            outputEscritor = new OutputStreamWriter(socket.getOutputStream());
+            outputEscritor = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
 
             bufferReader = new BufferedReader(inputLeitor);
             bufferWriter = new BufferedWriter(outputEscritor);
@@ -111,9 +112,9 @@ public class ThreadAtendente extends Thread{
             bufferReader.close();
 
         }catch(IOException e){
-            e.printStackTrace();
+            //e.printStackTrace();
         }catch (InterruptedException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }finally {
             try {
                 if (nomeDoAtendido != null) {

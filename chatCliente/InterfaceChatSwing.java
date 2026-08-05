@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class InterfaceChatSwing {
     private static String ipServidor;
     private static int portaServer;
     private static String meuNome;
+    private static int tamanho = 810;
 
     private static JButton btnConectar;
 
@@ -54,11 +56,19 @@ public class InterfaceChatSwing {
     }
 
     private static void criarTela() {
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
         // Configuração da janela principal 
         janela = new JFrame("Chat Maneiro");
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        janela.getContentPane().setPreferredSize(new Dimension(810, 810));
+        
+        if(tamanho>screenSize.height){
+            tamanho = screenSize.height-100;
+        }
+
+        janela.getContentPane().setPreferredSize(new Dimension(tamanho, tamanho));
         janela.pack(); 
         janela.setResizable(false); // Trava o redimensionamento
 
@@ -69,34 +79,34 @@ public class InterfaceChatSwing {
         /////////////////////////////////////////////////////
         // TELA DE CONEXAO
         //PainelComFundo telaConexao = new PainelComFundo("chatCliente/imagens/telaConexao.png");
-        PainelComFundo telaConexao = new PainelComFundo("imagens/telaConexao.png");
+        PainelComFundo telaConexao = new PainelComFundo("imagens/telaConexao.png", tamanho);
         telaConexao.setLayout(null); 
 
         // Texto exemplo IP
         JLabel lblPlaceholderIp = new JLabel("Ex: 10.0.0.0");
-        lblPlaceholderIp.setBounds(151, 224, 551, 49);
+        lblPlaceholderIp.setBounds(novaPosicao(151),novaPosicao( 224), 551, 49);
         lblPlaceholderIp.setForeground(Color.decode("#88adb3"));
         lblPlaceholderIp.setFont(new Font("SansSerif", Font.PLAIN, 31));
         
         //Campo para Digitar o IP
         JTextField txtIp = new JTextField();
-        txtIp.setBounds(151, 206, 532, 85);
+        txtIp.setBounds(novaPosicao(151), novaPosicao(206), 532, 85);
         configurarCampoInvisivel(txtIp, lblPlaceholderIp);
 
         // Texto exemplo porta
         JLabel lblPlaceholderPorta = new JLabel("Ex: 1234");
-        lblPlaceholderPorta.setBounds(151, 391, 351, 49);
+        lblPlaceholderPorta.setBounds(novaPosicao(151), novaPosicao(391), 351, 49);
         lblPlaceholderPorta.setForeground(Color.decode("#88adb3"));
         lblPlaceholderPorta.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
         //Campo para Digitar a porta
         JTextField txtPorta = new JTextField();
-        txtPorta.setBounds(151, 373, 423, 85);
+        txtPorta.setBounds(novaPosicao(151), novaPosicao(373), 423, 85);
         configurarCampoInvisivel(txtPorta, lblPlaceholderPorta);
 
         // Botão Conectar
         btnConectar = new JButton();
-        btnConectar.setBounds(248, 618, 312, 64);
+        btnConectar.setBounds(novaPosicao(248), novaPosicao(618), 312, 64);
         configurarBotaoInvisivel(btnConectar);
 
         telaConexao.add(txtIp);
@@ -108,28 +118,28 @@ public class InterfaceChatSwing {
         /////////////////////////////////////////////////////
         // TELA DE DEFINICAO DO NOME
         //PainelComFundo telaMenu = new PainelComFundo("chatCliente/imagens/Menu.png");
-        PainelComFundo telaMenu = new PainelComFundo("imagens/Menu.png");
+        PainelComFundo telaMenu = new PainelComFundo("imagens/Menu.png", tamanho);
         telaMenu.setLayout(null); 
 
         //Placeholder indicando onde digitar
         JLabel lblPlaceholderNome = new JLabel("Digite seu nome aqui...");
-        lblPlaceholderNome.setBounds(225, 562, 351, 49);
+        lblPlaceholderNome.setBounds(novaPosicao(225), novaPosicao(562), 351, 49);
         lblPlaceholderNome.setForeground(Color.decode("#88adb3"));
         lblPlaceholderNome.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
         //Campo para Digitar o nome
         JTextField txtNome = new JTextField();
-        txtNome.setBounds(225, 543, 481, 85);
+        txtNome.setBounds(novaPosicao(225),novaPosicao(543), 481, 85);
         configurarCampoInvisivel(txtNome, lblPlaceholderNome);
 
         //Botao nomeAleatorio
         JButton btnAleatorio = new JButton();
-        btnAleatorio.setBounds(179, 521, 45, 43);
+        btnAleatorio.setBounds(novaPosicao(179), novaPosicao(521), 45, 43);
         configurarBotaoInvisivel(btnAleatorio);
 
         //Botao entrar
         JButton btnEntrar = new JButton();
-        btnEntrar.setBounds(246, 653, 312, 64);
+        btnEntrar.setBounds(novaPosicao(246), novaPosicao(653), 312, 64);
         configurarBotaoInvisivel(btnEntrar);
 
         telaMenu.add(txtNome);
@@ -216,7 +226,7 @@ public class InterfaceChatSwing {
                     }
 
                     inputLeitor = new InputStreamReader(socket.getInputStream());
-                    outputEscritor = new OutputStreamWriter(socket.getOutputStream());
+                    outputEscritor = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
 
                     bufferReader = new BufferedReader(inputLeitor);
                     bufferWriter = new BufferedWriter(outputEscritor);
@@ -290,7 +300,7 @@ public class InterfaceChatSwing {
 
     //Cria Tela de Chat
     private static PainelComFundo criarTelaChat(String caminho, String titulo){
-        PainelComFundo telaChat = new PainelComFundo(caminho);
+        PainelComFundo telaChat = new PainelComFundo(caminho, tamanho);
         telaChat.setLayout(null);
 
         JPanel painelMensagens = new JPanel();
@@ -312,7 +322,7 @@ public class InterfaceChatSwing {
 
         // Scroll para as mensagens da conversa
         JScrollPane scrollChat = new JScrollPane(wrapperMensagens);
-        scrollChat.setBounds(186, 65, 612, 600);
+        scrollChat.setBounds(novaPosicao(186), novaPosicao(65), novaPosicao(612),novaPosicao( 600));
         scrollChat.setOpaque(false);
         scrollChat.getViewport().setOpaque(false); 
         scrollChat.setBorder(null);
@@ -322,30 +332,30 @@ public class InterfaceChatSwing {
         
         //Place holder indicando onde digitar a mensagem
         JLabel lblPlaceholderMsg = new JLabel("Digite aqui...");
-        lblPlaceholderMsg.setBounds(219, 735, 471, 49);
+        lblPlaceholderMsg.setBounds(novaPosicao(219), novaPosicao(735), 471, 49);
         lblPlaceholderMsg.setForeground(Color.decode("#88adb3"));
         lblPlaceholderMsg.setFont(new Font("SansSerif", Font.PLAIN, 31));
 
         //Campo para digitar uma mensagem
         JTextField txtMensagem = new JTextField();
-        txtMensagem.setBounds(219, 735, 471, 49);
+        txtMensagem.setBounds(novaPosicao(219), novaPosicao(735), novaPosicao(471), novaPosicao(49));
         configurarCampoInvisivel(txtMensagem, lblPlaceholderMsg);
         txtMensagem.setFont(new Font("SansSerif", Font.PLAIN, 31)); // Reduzindo um pouco a fonte da msg
 
         //Botao enviar
         JButton btnEnviar = new JButton();
-        btnEnviar.setBounds(704, 729, 65, 56);
+        btnEnviar.setBounds(novaPosicao(704), novaPosicao(729), 65, 56);
         configurarBotaoInvisivel(btnEnviar);
 
         //Titulo do chat
         JLabel lblTituloChat = new JLabel(titulo, SwingConstants.CENTER);
-        lblTituloChat.setBounds(334, 24, 257, 31);
+        lblTituloChat.setBounds(novaPosicao(334), novaPosicao(24), 257, 31);
         lblTituloChat.setFont(new Font("SansSerif", Font.PLAIN, 31));
         lblTituloChat.setForeground(Color.BLACK);
 
         //Botao do Chat Geral
         JButton btnChatLateral = new JButton("Chat Geral");
-        btnChatLateral.setBounds(14, 48, 141, 45); 
+        btnChatLateral.setBounds(novaPosicao(14), novaPosicao(48), novaPosicao(141), novaPosicao(45)); 
         btnChatLateral.setFont(new Font("SansSerif", Font.PLAIN, 16));
         btnChatLateral.setFocusPainted(false);
         if(titulo.equals("Chat Geral")){
@@ -372,8 +382,8 @@ public class InterfaceChatSwing {
 
         for(String nomeAntigo : botoesLaterais){
             JButton btnAntigo = new JButton(nomeAntigo);
-            btnAntigo.setPreferredSize(new Dimension(141, 45));
-            btnAntigo.setMaximumSize(new Dimension(141, 45)); 
+            btnAntigo.setPreferredSize(new Dimension(novaPosicao(141), novaPosicao(45)));
+            btnAntigo.setMaximumSize(new Dimension(novaPosicao(141),novaPosicao( 45))); 
             btnAntigo.setBackground(Color.decode("#458c98"));
             btnAntigo.setOpaque(true);
             btnAntigo.setFocusPainted(false);
@@ -398,7 +408,7 @@ public class InterfaceChatSwing {
             });
 
             painelLateral.add(btnAntigo);
-            painelLateral.add(Box.createRigidArea(new Dimension(0, 10)));
+            painelLateral.add(Box.createRigidArea(new Dimension(0, novaPosicao(10))));
         }
         
         todosPaineisLaterais.add(painelLateral);
@@ -411,7 +421,7 @@ public class InterfaceChatSwing {
         //Scroll Lateral
         
         JScrollPane scrollLateral = new JScrollPane(painelLateral);
-        scrollLateral.setBounds(14, 200, 160, 600);
+        scrollLateral.setBounds(novaPosicao(14), novaPosicao(200), novaPosicao(160), novaPosicao( 600));
         scrollLateral.setOpaque(false);
         scrollLateral.getViewport().setOpaque(false); 
         scrollLateral.setBorder(null);
@@ -478,8 +488,8 @@ public class InterfaceChatSwing {
         JButton btnNovo=null;
         for (JPanel painel : todosPaineisLaterais) {
             btnNovo = new JButton(tituloChat);
-            btnNovo.setPreferredSize(new Dimension(141, 45));
-            btnNovo.setMaximumSize(new Dimension(141, 45)); 
+            btnNovo.setPreferredSize(new Dimension(novaPosicao(141), novaPosicao(45)));
+            btnNovo.setMaximumSize(new Dimension(novaPosicao(141), novaPosicao(45))); 
             
             btnNovo.setBackground(Color.decode("#458c98"));
             btnNovo.setOpaque(true);
@@ -506,6 +516,10 @@ public class InterfaceChatSwing {
         }
         botoesLaterais.add(tituloChat);
         if(btnNovo != null) btnNovo.setBackground(Color.decode("#b2bdff"));
+    }
+
+    private static int novaPosicao (int posicaoOriginal){
+        return tamanho*(posicaoOriginal)/810;
     }
 
     private static void scrollarPraBaixo(JPanel panel){
@@ -790,20 +804,22 @@ public class InterfaceChatSwing {
 // Classe que desenha a imagem de fundo
 class PainelComFundo extends JPanel {
     private Image imagemFundo;
+    private int tamanho;
 
-    public PainelComFundo(String caminhoDaImagem) {
+    public PainelComFundo(String caminhoDaImagem, int tamanho) {
         try {
             this.imagemFundo = new ImageIcon(caminhoDaImagem).getImage();
         } catch (Exception e) {
             System.err.println("Não foi possível carregar a imagem: " + caminhoDaImagem);
         }
+        this.tamanho = tamanho;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (imagemFundo != null) {
-            g.drawImage(imagemFundo, 0, 0, getWidth(), getHeight(), this);
+            g.drawImage(imagemFundo, 0, 0, tamanho, tamanho, this);
         }
     }
 }
