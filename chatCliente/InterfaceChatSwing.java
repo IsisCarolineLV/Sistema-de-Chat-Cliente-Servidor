@@ -182,8 +182,15 @@ public class InterfaceChatSwing {
                     try {
                         portaServer = Integer.parseInt(porta);
                         socket = new Socket(ipServidor,portaServer );
-                        cardLayout.show(painelGerenciador, "TELA_MENU");
-                        janela.getRootPane().setDefaultButton(btnEntrar);
+                        InputStreamReader inputLeitor = new InputStreamReader(socket.getInputStream());
+                        BufferedReader bufferReader = new BufferedReader(inputLeitor);
+                        String resposta = bufferReader.readLine();   //le o nome
+                        if(resposta.equals("Conexão aceita")){
+                            cardLayout.show(painelGerenciador, "TELA_MENU");
+                            janela.getRootPane().setDefaultButton(btnEntrar);
+                        }else{
+                            throw new Exception("Conexão negada");
+                        }
                     } catch(NumberFormatException n){
                         txtPorta.setText(""); 
                         lblPlaceholderPorta.setForeground(Color.RED);

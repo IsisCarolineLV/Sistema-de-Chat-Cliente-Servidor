@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
@@ -25,6 +26,18 @@ public class Servidor {
             while (true) {
                 // O servidor fica aguardando uma conexao
                 socket = serverSocket.accept();
+
+                //envia confirmacao 
+                try{
+                    OutputStreamWriter outputEscritor = new OutputStreamWriter(socket.getOutputStream());
+                    BufferedWriter bufferWriter = new BufferedWriter(outputEscritor);
+
+                    bufferWriter.write("Conexão aceita");
+                    bufferWriter.newLine();
+                    bufferWriter.flush();
+                }catch(IOException e){
+                    System.out.println("Não conseguiu enviar a confirmação");
+                }
 
                 VerificadorNomes verificaNovoCliente= new VerificadorNomes(socket);
                 verificaNovoCliente.start();
@@ -54,7 +67,7 @@ public class Servidor {
                 BufferedReader bufferReader = new BufferedReader(inputLeitor);
                 String nomeDoCliente = bufferReader.readLine();   //le o nome
                 
-
+                    
                 //verifica se o nome eh valido
                 if(nomeUnico(nomeDoCliente)){
                     // Cria uma nova Thread para atender o cliente
