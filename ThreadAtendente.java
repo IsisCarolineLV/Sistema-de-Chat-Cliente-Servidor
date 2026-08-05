@@ -40,6 +40,12 @@ public class ThreadAtendente extends Thread{
             bufferWriter.flush();
             mandaAjuda(bufferWriter);
 
+            // Garante que a pasta arquivos exista antes de tentar ler
+            java.io.File diretorio = new java.io.File("arquivos");
+            if (!diretorio.exists()) {
+                diretorio.mkdirs();
+            }
+
             //reconstituindo mensagens armazenadas
             java.io.File arquivoHistorico = new java.io.File("arquivos/"+nomeDoAtendido + ".txt");
             if(arquivoHistorico.exists()) {
@@ -212,6 +218,12 @@ public class ThreadAtendente extends Thread{
 
     // Método para salvar as mensagens no arquivo de texto do usuário
     public void salvarNoHistorico(String nomeDonoDoArquivo, String linha) {
+        // Garante que a pasta arquivos exista antes de salvar
+        java.io.File diretorio = new java.io.File("arquivos");
+        if (!diretorio.exists()) {
+            diretorio.mkdirs();
+        }
+
         // O 'true' garante que ele vai adicionar no final do arquivo (append)
         try (java.io.FileWriter fw = new java.io.FileWriter("arquivos/"+nomeDonoDoArquivo + ".txt", true);
              java.io.BufferedWriter bw = new java.io.BufferedWriter(fw)) {
