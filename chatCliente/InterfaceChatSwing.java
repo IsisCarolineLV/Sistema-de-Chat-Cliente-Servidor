@@ -460,7 +460,7 @@ public class InterfaceChatSwing {
                             resetarChats();
                             cardLayout.show(painelGerenciador, "TELA_CONEXAO");
                         }else if(mensagem.charAt(0)=='@'){
-                            bufferWriter.write("PRIVADA|"+meuNome+"|"+ mensagem.trim().split(" ")[0].substring(1) +"|"+mensagem); //tripla
+                            bufferWriter.write("PRIVADA|"+meuNome+"|"+ mensagem.substring(1) +"|"+mensagem); //tripla
                         }else{
                             bufferWriter.write("CHAT GERAL|"+meuNome+"|"+mensagem); //tripla
                         }
